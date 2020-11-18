@@ -152,10 +152,9 @@ namespace Master40.XUnitTest.DataGenerator
                 var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();*/
 
                 var dbContext = MasterDBContext.GetContext(testCtxString);
-                var resultContext = ResultContext.GetContext(testResultCtxString);
 
                 var generator = new MainGenerator();
-                generator.StartGeneration(approach, dbContext, resultContext, true, 0.4);
+                generator.StartGeneration(approach, dbContext, true, 0.4);
             }
             Assert.True(true);
 
@@ -164,13 +163,22 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void CheckOrganizationDegreeFromResults()
         {
-            var simNumber = 27;
+            var simNumberStart = 43;
+            var simNumberEnd = 96;
+            var simNumberSkip = new HashSet<int> {56, 77};
             var dbContext = MasterDBContext.GetContext(testCtxString);
             var dbResultCtx = ResultContext.GetContext(testResultCtxString);
             var dbGeneratorCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
 
-            var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
-            transitionMatrixGeneratorVerifier.VerifySimulatedData(dbContext, dbGeneratorCtx, dbResultCtx, simNumber);
+            for (var i = simNumberStart; i < simNumberEnd + 1; i++)
+            {
+                if (simNumberSkip.Contains(i))
+                {
+                    continue;
+                }
+                var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
+                transitionMatrixGeneratorVerifier.VerifySimulatedData(dbContext, dbGeneratorCtx, dbResultCtx, i);
+            }
 
             Assert.True(true);
         }

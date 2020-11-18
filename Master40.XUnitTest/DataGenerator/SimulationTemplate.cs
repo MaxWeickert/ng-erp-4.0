@@ -27,17 +27,31 @@ namespace Master40.XUnitTest.DataGenerator
         public static IEnumerable<object[]> GetTestData()
         {
             // Simulation run 1
-            yield return new object[]  
+            yield return new object[]
             {
                 18      // approach id (test data generator input parameter set id)
                 , 240   // order Quantity
                 , 240   // max bucket size
                 , 60    // throughput time
-                , 348345// Random seed
+                , null  // Random seed
                 , 1/60d // arrival rate
                 , 15000 // simulation end
                 , 55    // min delivery time
                 , 65    // max delivery time
+                , 1     // test iteration number
+            };
+            yield return new object[]
+            {
+                18      // approach id (test data generator input parameter set id)
+                , 240   // order Quantity
+                , 240   // max bucket size
+                , 60    // throughput time
+                , null  // Random seed
+                , 1/60d // arrival rate
+                , 15000 // simulation end
+                , 55    // min delivery time
+                , 65    // max delivery time
+                , 3     // test iteration number
             };
             // Simulation run 2
             /*yield return new object[]
@@ -49,8 +63,9 @@ namespace Master40.XUnitTest.DataGenerator
                 , 552   // Random seed
                 , 1/1300d// arrival rate
                 , 2880  // simulation end
-                , 1400   // min delivery time
-                , 1440   // max delivery time
+                , 1400  // min delivery time
+                , 1440  // max delivery time
+                , 2     // test iteration number
             };*/
         }
 
@@ -65,21 +80,24 @@ namespace Master40.XUnitTest.DataGenerator
         /// <param name="arrivalRate"></param>
         /// <param name="simulationEnd"></param>
         /// <param name="minDeliveryTime"></param>
-        /// <param name="maxDeliveryTime"></param>
+        /// <param name="maxDeliveryTime"></param
+        /// <param name="testIterationNumber"></param>
         /// <returns></returns>
         [Theory]
-        //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
+
         [MemberData(nameof(GetTestData))]
         public async Task SystemTestAsync(int approachId
                                         , int orderQuantity
                                         , int maxBucketSize
                                         , long throughput
-                                        , int seed
+                                        , int? seed
                                         , double arrivalRate
                                         , long simulationEnd
                                         , int minDeliveryTime
-                                        , int maxDeliveryTime)
+                                        , int maxDeliveryTime
+                                        , int testIterationNumber)
         {
+            _ = testIterationNumber;
             ResultContext ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
             ProductionDomainContext masterCtx = ProductionDomainContext.GetContext(testCtxString);
             DataGeneratorContext dataGenCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
@@ -87,14 +105,14 @@ namespace Master40.XUnitTest.DataGenerator
             var approach = ApproachRepository.GetApproachById(dataGenCtx, approachId);
             var generator = new MainGenerator();
             await Task.Run(() =>
-                generator.StartGeneration(approach, masterCtx, ctxResult));
+                generator.StartGeneration(approach, masterCtx));
 
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(ctxResult, 1);
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);
@@ -115,6 +133,11 @@ namespace Master40.XUnitTest.DataGenerator
                 dataGenCtx.SaveChanges();
             });
 
+            if (seed == null)
+            {
+                seed = new Random().Next();
+            }
+
             // update customized Configuration
             simConfig.AddOption(new DBConnectionString(testResultCtxString));  
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
@@ -122,7 +145,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new OrderQuantity(value: orderQuantity)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
-            simConfig.ReplaceOption(new Seed(value: seed));
+            simConfig.ReplaceOption(new Seed(value: (int) seed));
             simConfig.ReplaceOption(new SettlingStart(value: 0)); 
             simConfig.ReplaceOption(new SimulationEnd(value: simulationEnd));
             simConfig.ReplaceOption(new SaveToDB(value: true));
@@ -148,8 +171,8 @@ namespace Master40.XUnitTest.DataGenerator
                 await sim;
                 dataGenSim.FinishTime = DateTime.Now;
                 dataGenSim.FinishedSuccessfully = sim.IsCompletedSuccessfully;
-                await Task.Run(() => 
-                    dataGenCtx.SaveChanges());
+                await Task.Run(() =>
+                        dataGenCtx.SaveChanges());
                 System.Diagnostics.Debug.WriteLine("################################# Simulation has finished with number " + dataGenSim.Id);
                 Assert.True(condition: sim.IsCompleted);
             }

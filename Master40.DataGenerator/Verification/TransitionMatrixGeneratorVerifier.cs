@@ -82,7 +82,7 @@ namespace Master40.DataGenerator.Verification
                 if (approach.TransitionMatrixInput.ExtendedTransitionMatrix)
                 {
                     var generator = new MainGenerator();
-                    generator.StartGeneration(approach, dbContext, dbResultCtx);
+                    generator.StartGeneration(approach, dbContext);
 
                     var articleCount =
                         ArticleRepository.GetArticleNamesAndCountForEachUsedArticleInSimulation(dbResultCtx, simNumber);
