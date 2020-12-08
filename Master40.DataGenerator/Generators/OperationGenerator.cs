@@ -41,26 +41,20 @@ namespace Master40.DataGenerator.Generators
 
                     do
                     {
-                        int duration;
-                        do
-                        {
-                            duration = _machiningTimeDistributions[currentWorkingMachine].Sample();
-                        } while (duration == 0);
-                        
-
                         hierarchyNumber += 10;
                         var operation = new M_Operation
                         {
                             ArticleId = article.Article.Id,
                             Name = "Operation " + (operationCount + 1) +  " for [" + article.Article.Name + "]",
-                            Duration = duration,
+                            Duration = _machiningTimeDistributions[currentWorkingMachine].Sample(),
                             ResourceCapabilityId = tools[currentWorkingMachine].GetNext().Id,
-                            HierarchyNumber = hierarchyNumber
+                            HierarchyNumber = hierarchyNumber,
                         };
                         article.Operations.Add(new Operation
                         {
                             MOperation = operation,
-                            SetupTimeOfCapability = _workingStations[currentWorkingMachine].SetupTime
+                            SetupTimeOfCapability = _workingStations[currentWorkingMachine].SetupTime,
+                            InternMachineGroupIndex = currentWorkingMachine
                         });
 
                         currentWorkingMachine = DetermineNextWorkingMachine(currentWorkingMachine + correction, rng);
@@ -107,7 +101,7 @@ namespace Master40.DataGenerator.Generators
                     inputTransitionMatrix.GeneralMachiningTimeParameterSet.MeanMachiningTime,
                     inputTransitionMatrix.GeneralMachiningTimeParameterSet.VarianceMachiningTime,
                     rng.GetRng());
-                unifyingDistribution = new TruncatedDiscreteNormal(0, null, normalDistribution);
+                unifyingDistribution = new TruncatedDiscreteNormal(1, null, normalDistribution);
             }
 
             _workingStations = inputTransitionMatrix.WorkingStations.ToArray();
@@ -123,7 +117,7 @@ namespace Master40.DataGenerator.Generators
                     var machiningTime = _workingStations[i].MachiningTimeParameterSet;
                     var normalDistribution = Normal.WithMeanVariance(machiningTime.MeanMachiningTime,
                         machiningTime.VarianceMachiningTime, rng.GetRng());
-                    truncatedDiscreteNormalDistribution = new TruncatedDiscreteNormal(0, null, normalDistribution);
+                    truncatedDiscreteNormalDistribution = new TruncatedDiscreteNormal(1, null, normalDistribution);
                 }
 
                 _machiningTimeDistributions.Add(truncatedDiscreteNormalDistribution);

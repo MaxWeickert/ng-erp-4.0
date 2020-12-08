@@ -25,6 +25,7 @@ namespace Master40.DB.Data.Context
         public DbSet<ProductStructureInput> ProductStructureInputs { get; set; }
         public DbSet<TransitionMatrixInput> TransitionMatrixInputs { get; set; }
         public DbSet<WorkingStationParameterSet> WorkingStations { get; set; }
+        public DbSet<EdgeWeightRoundMode> EdgeWeightRoundModes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +49,11 @@ namespace Master40.DB.Data.Context
                 .HasOne(bom => bom.Approach)
                 .WithOne(a => a.BomInput)
                 .HasForeignKey<BillOfMaterialInput>(bom => bom.ApproachId);
+            modelBuilder.Entity<BillOfMaterialInput>()
+                .ToTable("BomInput")
+                .HasOne(bom => bom.EdgeWeightRoundMode)
+                .WithMany(ewrm => ewrm.BomInputs)
+                .HasForeignKey(bom => bom.EdgeWeightRoundModeId);
             modelBuilder.Entity<ProductStructureInput>()
                 .ToTable("ProductStructureInput")
                 .HasOne(psi => psi.Approach)
@@ -75,6 +81,10 @@ namespace Master40.DB.Data.Context
                 .HasForeignKey<WorkingStationParameterSet>(ws => ws.MachiningTimeId);
             modelBuilder.Entity<MachiningTimeParameterSet>()
                 .ToTable("MachiningTime");
+            modelBuilder.Entity<EdgeWeightRoundMode>()
+                .ToTable("EdgeWeightRoundMode")
+                .HasIndex(ewrm => ewrm.Name)
+                .IsUnique();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

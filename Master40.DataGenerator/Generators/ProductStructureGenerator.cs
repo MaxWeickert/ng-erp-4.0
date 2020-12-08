@@ -14,7 +14,8 @@ namespace Master40.DataGenerator.Generators
     {
         // Wie könnte man Testen, ob der Algorithmus dem aus SYMTEP enspricht (keine Fehler enthält)
         public ProductStructure GenerateProductStructure(ProductStructureInput inputParameters,
-            MasterTableArticleType articleTypes, MasterTableUnit units, M_Unit[] unitCol, XRandom rng)
+            BillOfMaterialInput bomInput, MasterTableArticleType articleTypes, MasterTableUnit units, M_Unit[] unitCol,
+            XRandom rng)
         {
             var productStructure = new ProductStructure();
             var availableNodes = new List<HashSet<long>>();
@@ -22,7 +23,7 @@ namespace Master40.DataGenerator.Generators
 
             GenerateEdges(inputParameters, productStructure, rng, availableNodes);
 
-            DeterminationOfEdgeWeights(inputParameters, productStructure, rng);
+            DeterminationOfEdgeWeights(inputParameters, bomInput, productStructure, units, rng);
 
             return productStructure;
         }
@@ -346,13 +347,34 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private static void DeterminationOfEdgeWeights(ProductStructureInput inputParameters, ProductStructure productStructure, XRandom rng)
+        private static void DeterminationOfEdgeWeights(ProductStructureInput inputParameters,
+            BillOfMaterialInput bomInput, ProductStructure productStructure, MasterTableUnit units, XRandom rng)
         {
             var logNormalDistribution = LogNormal.WithMeanVariance(inputParameters.MeanIncomingMaterialAmount,
                 Math.Pow(inputParameters.StdDevIncomingMaterialAmount, 2), rng.GetRng());
+            var edgeWeightRoundModes = new DataGeneratorTableEdgeWeightRoundMode();
             foreach (var edge in productStructure.Edges)
             {
-                edge.Weight = logNormalDistribution.Sample();
+                var weight = logNormalDistribution.Sample();
+                if (edgeWeightRoundModes.ROUND_ALWAYS.Name == bomInput.EdgeWeightRoundMode.Name)
+                {
+                    edge.Weight = Math.Max(1, Math.Round(weight));
+                }
+                else if (edgeWeightRoundModes.ROUND_IF_IT_MAKES_SENSE.Name == bomInput.EdgeWeightRoundMode.Name)
+                {
+                    if (edge.Start.Article.UnitId == units.PIECES.Id)
+                    {
+                        edge.Weight = Math.Max(1, Math.Round(weight));
+                    }
+                    else
+                    {
+                        edge.Weight = Math.Max((double)bomInput.WeightEpsilon, weight);
+                    }
+                }
+                else if (edgeWeightRoundModes.ROUND_NEVER.Name == bomInput.EdgeWeightRoundMode.Name)
+                {
+                    edge.Weight = Math.Max((double) bomInput.WeightEpsilon, weight);
+                }
             }
         }
     }

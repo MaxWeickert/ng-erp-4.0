@@ -190,7 +190,7 @@ namespace Master40.DataGenerator.Generators
             return 1.0 / (matrixSize - 1) * sum;
         }
 
-        public void OutputMatrixAsCsv(double[,] pi, int matrixSize)
+        public void OutputMatrixForExcel(double[,] pi, int matrixSize)
         {
             var output = "\n";
             for (var i = 0; i < matrixSize; i++)
@@ -199,9 +199,9 @@ namespace Master40.DataGenerator.Generators
                 {
                     if (j != 0)
                     {
-                        output += ",";
+                        output += "\t";
                     }
-                    output += "\"" + Math.Round(pi[i, j], 3) + "\"";
+                    output += "" + Math.Round(pi[i, j], 3) + "";
                 }
                 output += "\n";
             }

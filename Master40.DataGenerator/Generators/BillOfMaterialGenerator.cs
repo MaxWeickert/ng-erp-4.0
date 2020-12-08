@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Master40.DataGenerator.DataModel;
+﻿using System.Collections.Generic;
 using Master40.DataGenerator.DataModel.ProductStructure;
 using Master40.DataGenerator.Util;
-using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.DataModel;
-using Master40.DB.GeneratorModel;
 
 namespace Master40.DataGenerator.Generators
 {
     public class BillOfMaterialGenerator
     {
 
-        public void GenerateBillOfMaterial(BillOfMaterialInput inputParameters, List<Dictionary<long, Node>> nodesPerLevel, TransitionMatrix transitionMatrix, MasterTableUnit units, XRandom rng)
+        public void GenerateBillOfMaterial(List<Dictionary<long, Node>> nodesPerLevel, XRandom rng)
         {
             for (var k = 0; k < nodesPerLevel.Count - 1; k++)
             {
@@ -46,19 +42,10 @@ namespace Master40.DataGenerator.Generators
                         {
                             var name = "[" + bom[i][j].Start.Article.Name + "] in (" +
                                        article.Operations[i].MOperation.Name + ")";
-                            var weight = (decimal) bom[i][j].Weight;
-                            if (inputParameters.RoundEdgeWeight || bom[i][j].Start.Article.UnitId == units.PIECES.Id)
-                            {
-                                weight = Math.Max(1, Decimal.Round(weight));
-                            }
-                            else
-                            {
-                                weight = Math.Max(inputParameters.WeightEpsilon, weight);
-                            }
                             var articleBom = new M_ArticleBom()
                             {
                                 ArticleChildId = bom[i][j].Start.Article.Id,
-                                Name = name, Quantity = weight,
+                                Name = name, Quantity = (decimal) bom[i][j].Weight,
                                 ArticleParentId = article.Article.Id,
                                 OperationId = article.Operations[i].MOperation.Id
                             };

@@ -31,7 +31,7 @@ namespace Master40.DataGenerator.Generators
 
             var productStructureGenerator = new ProductStructureGenerator();
             var productStructure = productStructureGenerator.GenerateProductStructure(approach.ProductStructureInput,
-                articleTypes, units, unitCol, rng);
+                approach.BomInput, articleTypes, units, unitCol, rng);
             ArticleInitializer.Init(productStructure.NodesPerLevel, dbContext);
 
             var articleTable = dbContext.Articles.ToArray();
@@ -52,8 +52,7 @@ namespace Master40.DataGenerator.Generators
             OperationInitializer.Init(productStructure.NodesPerLevel, dbContext);
 
             var billOfMaterialGenerator = new BillOfMaterialGenerator();
-            billOfMaterialGenerator.GenerateBillOfMaterial(approach.BomInput, productStructure.NodesPerLevel,
-                TransitionMatrix, units, rng);
+            billOfMaterialGenerator.GenerateBillOfMaterial(productStructure.NodesPerLevel, rng);
             BillOfMaterialInitializer.Init(productStructure.NodesPerLevel, dbContext);
 
             var businessPartner = new MasterTableBusinessPartner();
@@ -78,9 +77,15 @@ namespace Master40.DataGenerator.Generators
 
                 if (!double.IsNaN(setupTimeFactor))
                 {
-                    var capacityDemandVerifier = new CapacityDemandVerifier(setupTimeFactor);
-                    capacityDemandVerifier.Verify(productStructure);
+                    var capacityDemandVerifier = new CapacityDemandVerifier(setupTimeFactor,
+                        approach.TransitionMatrixInput.WorkingStations.Count);
+                    capacityDemandVerifier.Verify(productStructure, approach.TransitionMatrixInput);
                 }
+
+                //TEMP BEGIN
+                System.Diagnostics.Debug.WriteLine("################################# Generated transition matrix from input:");
+                transitionMatrixGenerator.OutputMatrixForExcel(TransitionMatrix.Pi, resourceCapabilities.ParentCapabilities.Count + (approach.TransitionMatrixInput.ExtendedTransitionMatrix ? 1 : 0 ));
+                //TEMP END
             }
         }
     }

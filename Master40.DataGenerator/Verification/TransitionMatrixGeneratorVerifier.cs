@@ -67,9 +67,9 @@ namespace Master40.DataGenerator.Verification
             System.Diagnostics.Debug.WriteLine("################################# Generated work plans have an organization degree of " + ActualOrganizationDegree + " (transition matrix has " + GeneratedOrganizationDegree + ")");
 
             System.Diagnostics.Debug.WriteLine("################################# Generated transition matrix from input:");
-            transitionMatrixGenerator.OutputMatrixAsCsv(transitionMatrix.Pi, capabilities.ParentCapabilities.Count + 1);
+            transitionMatrixGenerator.OutputMatrixForExcel(transitionMatrix.Pi, capabilities.ParentCapabilities.Count + 1);
             System.Diagnostics.Debug.WriteLine("################################# Actual transition matrix from generated work plans:");
-            transitionMatrixGenerator.OutputMatrixAsCsv(actualTransitionMatrix.Pi, capabilities.ParentCapabilities.Count + 1);
+            transitionMatrixGenerator.OutputMatrixForExcel(actualTransitionMatrix.Pi, capabilities.ParentCapabilities.Count + 1);
         }
 
         public void VerifySimulatedData(MasterDBContext dbContext, DataGeneratorContext dbGeneratorCtx,
@@ -149,7 +149,7 @@ namespace Master40.DataGenerator.Verification
                     System.Diagnostics.Debug.WriteLine("################################# Executed work plans have an organization degree of " + ActualOrganizationDegree + " (transition matrix has " + GeneratedOrganizationDegree + "; input was " + approach.TransitionMatrixInput.DegreeOfOrganization + ")");
 
                     System.Diagnostics.Debug.WriteLine("################################# Actual transition matrix from executed work plans in simulation:");
-                    transitionMatrixGenerator.OutputMatrixAsCsv(actualTransitionMatrix.Pi, capabilities.Count + 1);
+                    transitionMatrixGenerator.OutputMatrixForExcel(actualTransitionMatrix.Pi, capabilities.Count + 1);
                 }
             }
         }

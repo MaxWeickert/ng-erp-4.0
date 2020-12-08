@@ -12,6 +12,7 @@ namespace Master40.DataGenerator.Repository
         {
             var approach = ctx.Approaches
                 .Include(x => x.BomInput)
+                    .ThenInclude(x => x.EdgeWeightRoundMode)
                 .Include(x => x.ProductStructureInput)
                 .Include(x => x.TransitionMatrixInput)
                     .ThenInclude(x => x.WorkingStations)
