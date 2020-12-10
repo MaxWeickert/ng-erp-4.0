@@ -135,16 +135,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        [InlineData(SimulationType.Default, PriorityRule.LST, 5000, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Default, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Default, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Default, PriorityRule.FIFO, 5003, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Default, PriorityRule.LST, 100, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.035, false, false, 2)]
+        //[InlineData(SimulationType.Default, PriorityRule.LST, 91, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.035, false, false, 5)]
+        //[InlineData(SimulationType.Default, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        //[InlineData(SimulationType.Default, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        //[InlineData(SimulationType.Default, PriorityRule.FIFO, 5003, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
 
         public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially
-            , bool createMeasurements = false)
+            , bool createMeasurements = false, int approachId = 1)
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -166,12 +167,18 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterPlanResultContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
             */
+
+            //DataGenerator.GenerateTestData.GenerateData(approachId, approachId);
+
             var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially, false);
             
-            
+            masterCtx.CustomerOrderParts.RemoveRange(masterCtx.CustomerOrderParts);
+            masterCtx.CustomerOrders.RemoveRange(masterCtx.CustomerOrders);
+            masterCtx.SaveChanges();
+
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
@@ -186,13 +193,13 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 40360));
+            simConfig.ReplaceOption(new SimulationEnd(value: 80640));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new DebugAgents(value: false));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             simConfig.ReplaceOption(new MinDeliveryTime(1920));
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(priorityRule));

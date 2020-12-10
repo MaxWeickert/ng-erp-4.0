@@ -31,7 +31,7 @@ namespace Master40.XUnitTest.DataGenerator
 
             for (var i = 0; i < iterations; i++)
             {
-                var usePresetSeed = false;
+                var usePresetSeed = true;
                 var rng = new Random();
                 int seed = usePresetSeed ? 2083793265 : rng.Next();
 
@@ -46,14 +46,14 @@ namespace Master40.XUnitTest.DataGenerator
                 var individualMachiningTime = false;
                 approach.TransitionMatrixInput = new TransitionMatrixInput
                 {
-                    DegreeOfOrganization = 0.13,
+                    DegreeOfOrganization = 0.6,
                     Lambda = 1.3,
                     InfiniteTools = true,
                     ExtendedTransitionMatrix = true,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
-                        MeanMachiningTime = 1,
-                        VarianceMachiningTime = 0
+                        MeanMachiningTime = 10,
+                        VarianceMachiningTime = 8
                     },
                     WorkingStations = new List<WorkingStationParameterSet>()
                     {
@@ -111,7 +111,7 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 100 : rng.Next(9) + 2,
+                    EndProductCount = !randomGeneratedInputValues ? 10 : rng.Next(9) + 2,
                     DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1,
                     ComplexityRatio = !randomGeneratedInputValues ? 1.85 : rng.NextDouble() + 1,
                     ReutilisationRatio = !randomGeneratedInputValues ? 1.4 : rng.NextDouble() + 1,
@@ -138,10 +138,17 @@ namespace Master40.XUnitTest.DataGenerator
         }
 
         [Fact]
-        public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
+        public void DoGenerateData()
         {
-            var approachRangeStart = 18;
-            var approachRangeEnd = 18;
+            GenerateData(5, 5);
+            Assert.True(true);
+
+        }
+
+        public static void GenerateData(int approachRangeStart, int approachRangeEnd) //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
+        {
+            //var approachRangeStart = 5;
+            //var approachRangeEnd = 5;
             for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
                 var approachId = i;
