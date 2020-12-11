@@ -135,7 +135,20 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        [InlineData(SimulationType.Default, PriorityRule.LST, 100, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, ModelSize.None, 0, 0.035, false, false, 2)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 8000, 960, 1920, 594, ModelSize.Medium, ModelSize.Small, ModelSize.None, 0, 0.025, false, false, 2)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 8001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, ModelSize.None, 0, 0.025, false, false, 2)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 8002, 960, 1920, 594, ModelSize.Medium, ModelSize.Large, ModelSize.None, 0, 0.025, false, false, 2)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 8003, 960, 1920, 594, ModelSize.Large, ModelSize.Small, ModelSize.None, 0, 0.04, false, false, 2)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 8004, 960, 1920, 594, ModelSize.Large, ModelSize.Medium, ModelSize.None, 0, 0.04, false, false, 2)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 8005, 960, 1920, 594, ModelSize.Large, ModelSize.Large, ModelSize.None, 0, 0.04, false, false, 2)]
+
+        [InlineData(SimulationType.Default, PriorityRule.LST, 9000, 960, 1920, 594, ModelSize.Medium, ModelSize.Small, ModelSize.None, 0, 0.025, false, false, 2)]
+        [InlineData(SimulationType.Default, PriorityRule.LST, 9001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, ModelSize.None, 0, 0.025, false, false, 2)]
+        [InlineData(SimulationType.Default, PriorityRule.LST, 9002, 960, 1920, 594, ModelSize.Medium, ModelSize.Large, ModelSize.None, 0, 0.025, false, false, 2)]
+        [InlineData(SimulationType.Default, PriorityRule.LST, 9003, 960, 1920, 594, ModelSize.Large, ModelSize.Small, ModelSize.None, 0, 0.04, false, false, 2)]
+        [InlineData(SimulationType.Default, PriorityRule.LST, 9004, 960, 1920, 594, ModelSize.Large, ModelSize.Medium, ModelSize.None, 0, 0.04, false, false, 2)]
+        [InlineData(SimulationType.Default, PriorityRule.LST, 9005, 960, 1920, 594, ModelSize.Large, ModelSize.Large, ModelSize.None, 0, 0.04, false, false, 2)]
+
         //[InlineData(SimulationType.Default, PriorityRule.LST, 91, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.035, false, false, 5)]
         //[InlineData(SimulationType.Default, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
         //[InlineData(SimulationType.Default, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
@@ -192,8 +205,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 80640));
+            simConfig.ReplaceOption(new SettlingStart(value: 10080));
+            simConfig.ReplaceOption(new SimulationEnd(value: 30240));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
