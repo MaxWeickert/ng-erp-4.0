@@ -135,7 +135,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        [InlineData(SimulationType.Default, PriorityRule.LST, 100, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.035, false, false, 2)]
+        [InlineData(SimulationType.Default, PriorityRule.LST, 100, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, ModelSize.None, 0, 0.035, false, false, 2)]
         //[InlineData(SimulationType.Default, PriorityRule.LST, 91, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.035, false, false, 5)]
         //[InlineData(SimulationType.Default, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
         //[InlineData(SimulationType.Default, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
@@ -143,7 +143,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
-            , ModelSize resourceModelSize, ModelSize setupModelSize
+            , ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorModelSize, int workerCount
             , double arrivalRate, bool distributeSetupsExponentially
             , bool createMeasurements = false, int approachId = 1)
         {
@@ -173,7 +173,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially, false);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, operatorModelSize, workerCount, distributeSetupsExponentially, false);
             
             masterCtx.CustomerOrderParts.RemoveRange(masterCtx.CustomerOrderParts);
             masterCtx.CustomerOrders.RemoveRange(masterCtx.CustomerOrders);
