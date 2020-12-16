@@ -126,6 +126,11 @@ namespace Master40.XUnitTest.DataGenerator
                         }
                     }
                 };
+                var transitionMatrixSettings = new DataGeneratorTableTransitionMatrixSettingConfiguration();
+                //Änderungen der Standardkonfiguration:
+                transitionMatrixSettings.BALANCED_PI_B_INIT.SettingValue = 1.0;
+                transitionMatrixSettings.BALANCED_PI_A_INIT.SettingValue = 0.0;
+                approach.TransitionMatrixInput.SettingConfiguration = transitionMatrixSettings.AsList();
 
                 //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
                 //-> Anpassung der Nebenbedingung: Fertigungstiefe muss mindestens 2 sein

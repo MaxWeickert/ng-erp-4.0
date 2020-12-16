@@ -10,6 +10,9 @@ namespace Master40.DB.Data.Initializer
         {
             context.Database.EnsureCreated();
 
+            var settingOptions = new DataGeneratorTableTransitionMatrixSettingOption();
+            settingOptions.Init(context);
+
             if (context.EdgeWeightRoundModes.Any())
             {
                 return;

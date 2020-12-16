@@ -26,6 +26,8 @@ namespace Master40.DB.Data.Context
         public DbSet<TransitionMatrixInput> TransitionMatrixInputs { get; set; }
         public DbSet<WorkingStationParameterSet> WorkingStations { get; set; }
         public DbSet<EdgeWeightRoundMode> EdgeWeightRoundModes { get; set; }
+        public DbSet<TransitionMatrixSettingOption> TransitionMatrixSettingOptions { get; set; }
+        public DbSet<TransitionMatrixSettingConfiguration> TransitionMatrixSettingConfigurations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -85,6 +87,24 @@ namespace Master40.DB.Data.Context
                 .ToTable("EdgeWeightRoundMode")
                 .HasIndex(ewrm => ewrm.Name)
                 .IsUnique();
+            modelBuilder.Entity<TransitionMatrixSettingOption>()
+                .ToTable("TransitionMatrixSettingOption")
+                .HasIndex(tms => tms.Name)
+                .IsUnique();
+            modelBuilder.Entity<TransitionMatrixSettingConfiguration>()
+                .ToTable("TransitionMatrixSettingConfiguration")
+                .HasIndex(tmsc => new {tmsc.SettingOptionId, tmsc.TransitionMatrixId})
+                .IsUnique();
+            modelBuilder.Entity<TransitionMatrixSettingConfiguration>()
+                .ToTable("TransitionMatrixSettingConfiguration")
+                .HasOne(tmsc => tmsc.SettingOption)
+                .WithMany(tmso => tmso.SettingConfigurations)
+                .HasForeignKey(tmsc => tmsc.SettingOptionId);
+            modelBuilder.Entity<TransitionMatrixSettingConfiguration>()
+                .ToTable("TransitionMatrixSettingConfiguration")
+                .HasOne(tmsc => tmsc.TransitionMatrix)
+                .WithMany(tmi => tmi.SettingConfiguration)
+                .HasForeignKey(tmsc => tmsc.TransitionMatrixId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

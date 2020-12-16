@@ -16,6 +16,6 @@ namespace Master40.DB.GeneratorModel
         public bool InfiniteTools { get; set; }
         public int ApproachId { get; set; }
         public Approach Approach { get; set; }
-
+        public virtual ICollection<TransitionMatrixSettingConfiguration> SettingConfiguration { get; set; }
     }
 }

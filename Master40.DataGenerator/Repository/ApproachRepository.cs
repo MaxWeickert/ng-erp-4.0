@@ -19,6 +19,8 @@ namespace Master40.DataGenerator.Repository
                         .ThenInclude(x => x.MachiningTimeParameterSet)
                 .Include(x => x.TransitionMatrixInput)
                     .ThenInclude(x => x.GeneralMachiningTimeParameterSet)
+                .Include(x => x.TransitionMatrixInput)
+                    .ThenInclude(x => x.SettingConfiguration)
                 .Single(predicate: (x => x.Id == id));
             return approach;
         }
