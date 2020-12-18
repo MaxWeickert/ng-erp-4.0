@@ -368,12 +368,12 @@ namespace Master40.DataGenerator.Generators
                     }
                     else
                     {
-                        edge.Weight = Math.Max((double)bomInput.WeightEpsilon, weight);
+                        edge.Weight = Math.Max(bomInput.WeightEpsilon, weight);
                     }
                 }
                 else if (edgeWeightRoundModes.ROUND_NEVER.Name == bomInput.EdgeWeightRoundMode.Name)
                 {
-                    edge.Weight = Math.Max((double) bomInput.WeightEpsilon, weight);
+                    edge.Weight = Math.Max(bomInput.WeightEpsilon, weight);
                 }
             }
         }

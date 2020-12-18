@@ -117,7 +117,7 @@ namespace Master40.XUnitTest.DataGenerator
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 8.1, VarianceMachiningTime = 3.141
+                                MeanMachiningTime = 8.1, VarianceMachiningTime = 3.142
                             },
                             ResourceCount = 5,
                             ToolCount = 7,
@@ -156,7 +156,7 @@ namespace Master40.XUnitTest.DataGenerator
                 approach.BomInput = new BillOfMaterialInput
                 {
                     EdgeWeightRoundModeId = edgeWeightRoundModes.ROUND_NEVER.Id,
-                    WeightEpsilon = 0.001m
+                    WeightEpsilon = 0.001
                 };
 
                 generatorDbCtx.Approaches.AddRange(approach);
