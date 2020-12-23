@@ -130,21 +130,31 @@ namespace Master40.XUnitTest.DataGenerator
                     MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 4.0,
                     VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 0.0
                 };
-                //System.Diagnostics.Debug.WriteLine(approach.ProductStructureInput.ToString());
-
-                var edgeWeightRoundModes = new DataGeneratorTableEdgeWeightRoundMode();
-                edgeWeightRoundModes.Load(generatorDbCtx);
-
-                approach.BomInput = new BillOfMaterialInput
+                if (ProductStructureGenerator.DeterminateMaxDepthOfAssemblyAndCheckLimit(approach.ProductStructureInput))
                 {
-                    EdgeWeightRoundModeId = edgeWeightRoundModes.ROUND_ALWAYS.Id,
-                    WeightEpsilon = 0.001
-                };
+                    //System.Diagnostics.Debug.WriteLine(approach.ProductStructureInput.ToString());
 
-                generatorDbCtx.Approaches.AddRange(approach);
-                generatorDbCtx.SaveChanges();
+                    var edgeWeightRoundModes = new DataGeneratorTableEdgeWeightRoundMode();
+                    edgeWeightRoundModes.Load(generatorDbCtx);
 
-                System.Diagnostics.Debug.WriteLine("################################# Generated test data have the approach id of " + approach.Id);
+                    approach.BomInput = new BillOfMaterialInput
+                    {
+                        EdgeWeightRoundModeId = edgeWeightRoundModes.ROUND_ALWAYS.Id,
+                        WeightEpsilon = 0.001
+                    };
+
+                    generatorDbCtx.Approaches.AddRange(approach);
+                    generatorDbCtx.SaveChanges();
+
+                    System.Diagnostics.Debug.WriteLine(
+                        "################################# Generated test data have the approach id of " + approach.Id);
+                }
+                else
+                {
+                    success = false;
+                    System.Diagnostics.Debug.WriteLine(
+                        "################################# Eingaben für Erzeugnisstruktur waren ungültig!");
+                }
             }
 
             Assert.True(success);
@@ -153,11 +163,11 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            var approachRangeStart = 0;
-            var approachRangeEnd = 2;
+            var approachRangeStart = 1;
+            var approachRangeEnd = 1;
             for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
-                var approachId = 82;
+                var approachId = i;
                 var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
                 var approach = ApproachRepository.GetApproachById(generatorDbCtx, approachId);
 
@@ -203,6 +213,7 @@ namespace Master40.XUnitTest.DataGenerator
             var lintMax = Int32.MaxValue;
             var longMax = Int64.MaxValue;
             var doubleMax = Double.MaxValue;
+            var doubleMaxPlusALot = doubleMax + 1e+307d;
             System.Diagnostics.Debug.WriteLine(lintMax.ToString());
             System.Diagnostics.Debug.WriteLine(longMax.ToString());
             System.Diagnostics.Debug.WriteLine(doubleMax.ToString());

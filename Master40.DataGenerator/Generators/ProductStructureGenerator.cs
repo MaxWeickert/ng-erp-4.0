@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Master40.DataGenerator.DataModel.ProductStructure;
 using Master40.DataGenerator.Util;
 using Master40.DB.Data.Initializer.Tables;
@@ -97,9 +98,7 @@ namespace Master40.DataGenerator.Generators
             //Problem mit Algorithmus aus SYMTEP: bei ungünstigen Eingabeparametern gibt es auf manchen Fertigungsstufen keine Teile (0 Knoten)
             //-> Es fehlt wohl Nebenbedingung, dass Anzahl an Teilen auf jeden Fertigungsstufe mindestens 1 sein darf
             //-> Entsprechend wurde das hier angepasst
-            var nodeCount = Math.Max(1, Convert.ToInt64(Math.Round(
-                Math.Pow(inputParameters.ComplexityRatio / inputParameters.ReutilisationRatio, i - 1) *
-                inputParameters.EndProductCount)));
+            var nodeCount = Math.Max(1, Convert.ToInt64(CalculateAmountOfPartsForGivenLevel(i, inputParameters)));
             var nodesCurrentLevel = new Dictionary<long, Node>();
             productStructure.NodesPerLevel.Add(nodesCurrentLevel);
             var availableNodesOnThisLevel = new HashSet<long>();
@@ -376,6 +375,32 @@ namespace Master40.DataGenerator.Generators
                     edge.Weight = Math.Max(bomInput.WeightEpsilon, weight);
                 }
             }
+        }
+
+        public static bool DeterminateMaxDepthOfAssemblyAndCheckLimit(ProductStructureInput input)
+        {
+            var total = BigInteger.Zero;
+            for (var i = 1; i <= input.DepthOfAssembly; i++)
+            {
+                var result = new BigInteger(CalculateAmountOfPartsForGivenLevel(i, input));
+                //wegen double beginnen die Werte, wenn sie etwa 17-stellig werden, vom richtigen Ergebnis abzuweichen
+                //das ist aber nicht so schlimm, da die Größenordnung in etwa gewahrt wird und overflows nicht auftreten
+                if (result.Equals(BigInteger.Zero))
+                {
+                    input.DepthOfAssembly = i - 1;
+                    break;
+                }
+
+                total += result;
+            }
+
+            return total <= 100000;
+        }
+
+        public static double CalculateAmountOfPartsForGivenLevel(int level, ProductStructureInput input)
+        {
+            return Math.Round(Math.Pow(input.ComplexityRatio / input.ReutilisationRatio, level - 1) *
+                              input.EndProductCount);
         }
     }
 }
