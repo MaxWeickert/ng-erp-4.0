@@ -254,5 +254,17 @@ namespace Master40.DataGenerator.Generators
             System.Diagnostics.Debug.WriteLine(output);
         }
 
+        public static double CalcMinPossibleDegreeOfOrganization(int machineGroupCount, bool extendedTransitionMatrix)
+        {
+            if (extendedTransitionMatrix)
+            {
+                var normalCell = (double)1 / machineGroupCount;
+                var result = machineGroupCount * Math.Pow(normalCell - (double)1 / (machineGroupCount + 1), 2) +
+                             Math.Pow(0 - (double)1 / (machineGroupCount + 1), 2);
+                return result / machineGroupCount;
+            }
+            return 0.0;
+        }
+
     }
 }

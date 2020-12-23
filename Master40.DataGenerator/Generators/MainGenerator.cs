@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Master40.DataGenerator.DataModel;
+using Master40.DataGenerator.DataModel.ProductStructure;
 using Master40.DataGenerator.MasterTableInitializers;
-using Master40.DataGenerator.Repository;
 using Master40.DataGenerator.Util;
 using Master40.DataGenerator.Verification;
 using Master40.DB.Data.Context;
@@ -16,6 +16,9 @@ namespace Master40.DataGenerator.Generators
     {
 
         public TransitionMatrix TransitionMatrix { get; set; }
+        public ProductStructure ProductStructur { get; set; }
+        public Master40.DB.Data.DynamicInitializer.Tables.MasterTableResourceCapability ResourceCapabilities { get; set; }
+
 
         public void StartGeneration(Approach approach, MasterDBContext dbContext, bool doVerify = false, double setupTimeFactor = double.NaN)
         {
@@ -30,9 +33,9 @@ namespace Master40.DataGenerator.Generators
             articleTypes.Init(dbContext);
 
             var productStructureGenerator = new ProductStructureGenerator();
-            var productStructure = productStructureGenerator.GenerateProductStructure(approach.ProductStructureInput,
+            ProductStructur = productStructureGenerator.GenerateProductStructure(approach.ProductStructureInput,
                 approach.BomInput, articleTypes, units, unitCol, rng);
-            ArticleInitializer.Init(productStructure.NodesPerLevel, dbContext);
+            ArticleInitializer.Init(ProductStructur.NodesPerLevel, dbContext);
 
             var articleTable = dbContext.Articles.ToArray();
             MasterTableStock.Init(dbContext, articleTable);
@@ -44,16 +47,16 @@ namespace Master40.DataGenerator.Generators
             List<ResourceProperty> resourceProperties = approach.TransitionMatrixInput.WorkingStations
                 .Select(x => (ResourceProperty)x).ToList();
 
-            var resourceCapabilities = ResourceInitializer.Initialize(dbContext, resourceProperties);
+            ResourceCapabilities = ResourceInitializer.Initialize(dbContext, resourceProperties);
 
             var operationGenerator = new OperationGenerator();
-            operationGenerator.GenerateOperations(productStructure.NodesPerLevel, TransitionMatrix,
-                approach.TransitionMatrixInput, resourceCapabilities, rng);
-            OperationInitializer.Init(productStructure.NodesPerLevel, dbContext);
+            operationGenerator.GenerateOperations(ProductStructur.NodesPerLevel, TransitionMatrix,
+                approach.TransitionMatrixInput, ResourceCapabilities, rng);
+            OperationInitializer.Init(ProductStructur.NodesPerLevel, dbContext);
 
             var billOfMaterialGenerator = new BillOfMaterialGenerator();
-            billOfMaterialGenerator.GenerateBillOfMaterial(productStructure.NodesPerLevel, rng);
-            BillOfMaterialInitializer.Init(productStructure.NodesPerLevel, dbContext);
+            billOfMaterialGenerator.GenerateBillOfMaterial(ProductStructur.NodesPerLevel, rng);
+            BillOfMaterialInitializer.Init(ProductStructur.NodesPerLevel, dbContext);
 
             var businessPartner = new MasterTableBusinessPartner();
             businessPartner.Init(dbContext);
@@ -66,25 +69,22 @@ namespace Master40.DataGenerator.Generators
             {
                 var productStructureVerifier = new ProductStructureVerifier();
                 productStructureVerifier.VerifyComplexityAndReutilizationRation(approach.ProductStructureInput,
-                    productStructure);
+                    ProductStructur);
 
-                if (approach.TransitionMatrixInput.ExtendedTransitionMatrix)
-                {
-                    var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
-                    transitionMatrixGeneratorVerifier.VerifyGeneratedData(TransitionMatrix,
-                        productStructure.NodesPerLevel, resourceCapabilities);
-                }
+                var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
+                transitionMatrixGeneratorVerifier.VerifyGeneratedData(TransitionMatrix, ProductStructur.NodesPerLevel,
+                    ResourceCapabilities, approach.TransitionMatrixInput);
 
                 if (!double.IsNaN(setupTimeFactor))
                 {
                     var capacityDemandVerifier = new CapacityDemandVerifier(setupTimeFactor,
                         approach.TransitionMatrixInput.WorkingStations.Count);
-                    capacityDemandVerifier.Verify(productStructure, approach.TransitionMatrixInput);
+                    capacityDemandVerifier.Verify(ProductStructur, approach.TransitionMatrixInput);
                 }
 
                 //TEMP BEGIN
                 System.Diagnostics.Debug.WriteLine("################################# Generated transition matrix from input:");
-                transitionMatrixGenerator.OutputMatrixForExcel(TransitionMatrix.Pi, resourceCapabilities.ParentCapabilities.Count + (approach.TransitionMatrixInput.ExtendedTransitionMatrix ? 1 : 0 ));
+                transitionMatrixGenerator.OutputMatrixForExcel(TransitionMatrix.Pi, ResourceCapabilities.ParentCapabilities.Count + (approach.TransitionMatrixInput.ExtendedTransitionMatrix ? 1 : 0 ));
                 //TEMP END
             }
         }
