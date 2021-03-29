@@ -6,8 +6,10 @@ using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
+using Newtonsoft.Json;
 using NLog;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
@@ -87,6 +89,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 ValueMax = 0
             };
             Kpis.Add(item: k);
+
+        }
+
+        internal void SendKpi(FKpi.FKpi kpi)
+        {
+            this.actorPaths.SimulationContext.Ref.Tell(
+                message: SupervisorAgent.Supervisor.Instruction.AddKpi.Create(
+                    message: kpi
+                    , target: this.actorPaths.SystemAgent.Ref
+                )
+                , sender: ActorRefs.NoSender);
         }
     }
 }

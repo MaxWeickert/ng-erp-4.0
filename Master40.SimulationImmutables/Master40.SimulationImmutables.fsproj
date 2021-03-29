@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AI\FKpi.fs" />
     <Compile Include="FunctionConverter.fs" />
     <Compile Include="Message\Central\FCentralGanttPlanInformations.fs" />
     <Compile Include="Message\Central\FCentralProvideOrders.fs" />
