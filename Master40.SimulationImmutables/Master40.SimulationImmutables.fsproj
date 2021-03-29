@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
 	  <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -76,9 +76,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.4.10" />
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
+    <PackageReference Include="Akka" Version="1.4.13" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.1.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -86,7 +86,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.2" />
+    <PackageReference Update="FSharp.Core" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

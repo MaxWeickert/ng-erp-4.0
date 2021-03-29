@@ -32,8 +32,8 @@ namespace Master40.DB.Data.Initializer
                 new ConfigurationItem {Property = "DebugAgents", PropertyValue = "false", Description = "Default"},
                 new ConfigurationItem {Property = "DebugSystem", PropertyValue = "false", Description = "Default"},
                 new ConfigurationItem {Property = "KpiTimeSpan", PropertyValue = "480", Description = "Default"},
-                new ConfigurationItem {Property = "MinDeliveryTime", PropertyValue = "1440", Description = "Default"},
-                new ConfigurationItem {Property = "MaxDeliveryTime", PropertyValue = "2400", Description = "Default"},
+                new ConfigurationItem {Property = "MinDeliveryTime", PropertyValue = "10", Description = "Default"},
+                new ConfigurationItem {Property = "MaxDeliveryTime", PropertyValue = "15", Description = "Default"},
                 new ConfigurationItem {Property = "TransitionFactor", PropertyValue = "3", Description = "Default"},
                 new ConfigurationItem {Property = "MaxBucketSize", PropertyValue = "960", Description = "Default"},
                 new ConfigurationItem {Property = "TimePeriodForThroughputCalculation", PropertyValue = "1920", Description = "Default"},
@@ -43,7 +43,7 @@ namespace Master40.DB.Data.Initializer
                 new ConfigurationItem {Property = "WorkTimeDeviation", PropertyValue = "0.2", Description = "Default"},
                 new ConfigurationItem {Property = "SaveToDB", PropertyValue = "true", Description = "Default"},
                 new ConfigurationItem {Property = "TimeToAdvance", PropertyValue = "0", Description = "Default"},
-                new ConfigurationItem {Property = "PriorityRule", PropertyValue = "LST", Description = "Default, LST"}
+                new ConfigurationItem {Property = "PriorityRule", PropertyValue = DB.Nominal.PriorityRule.LST.ToString(), Description = "Default, LST"}
             };
             context.ConfigurationItems.AddRange(entities: configurationItems);
             context.SaveChanges();
