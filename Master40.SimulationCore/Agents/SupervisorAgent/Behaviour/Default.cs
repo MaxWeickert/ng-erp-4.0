@@ -231,7 +231,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     case "Assembly":
                         Kpis.Add(new SimulationKpis((float)kpi.Time, assembly: (float)kpi.Value));
                         break;
-                    case "Consumab":
+                    case "Consumable":
                         Kpis.Add(new SimulationKpis((float)kpi.Time, consumable: (float)kpi.Value));
                         break;
                     case "Material":
@@ -267,7 +267,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     case "Assembly":
                         kpiFromList.Assembly = (float)kpi.Value;
                         break;
-                    case "Consumab":
+                    case "Consumable":
                         kpiFromList.Consumab = (float)kpi.Value;
                         break;
                     case "Material":

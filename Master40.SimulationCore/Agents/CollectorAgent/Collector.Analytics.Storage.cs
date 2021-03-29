@@ -103,7 +103,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var assembly = StockTotalValues.Find(k => k.Name == "Assembly" && k.Time == Collector.Time);
             var fAssembly = new FKpi.FKpi(assembly.Time, assembly.Name, assembly.Value);
             Collector.SendKpi(fAssembly);
-            var consumable = StockTotalValues.Find(k => k.Name == "Consumab" && k.Time == Collector.Time);
+            var consumable = StockTotalValues.Find(k => k.Name == "Consumable" && k.Time == Collector.Time);
             var fConsumable = new FKpi.FKpi(consumable.Time, consumable.Name, consumable.Value);
             Collector.SendKpi(fConsumable);
             var material = StockTotalValues.Find(k => k.Name == "Material" && k.Time == Collector.Time);

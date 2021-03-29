@@ -154,6 +154,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MinDeliveryTime(value: minDeliveryTime));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
+            simConfig.ReplaceOption(new UsePredictedThroughput(value: 0));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
 
