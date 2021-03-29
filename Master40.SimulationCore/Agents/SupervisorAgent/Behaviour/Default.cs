@@ -7,7 +7,9 @@ using AiProvider.DataStuctures;
 using Akka.Actor;
 using Akka.Util.Internal;
 using AkkaSim.Definitions;
+using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
@@ -32,8 +34,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        private ProductionDomainContext _productionDomainContext { get; set; }
-        private DbConnection _dataBaseConnection { get; set; }
+        private DataBase<ProductionDomainContext> dbProduction { get; set; }
         private IMessageHub _messageHub { get; set; }
         private HubConnection _connection;
         private int orderCount { get; set; } = 0;
@@ -54,16 +55,15 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private int _numberOfValuesForPrediction { get; set; }
         private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
         private List<SimulationKpis> Kpis { get; set; } = new List<SimulationKpis>();
-        public Default(ProductionDomainContext productionDomainContext
+        public  Default(ProductionDomainContext productionDomainContext
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            _productionDomainContext = productionDomainContext;
-            _dataBaseConnection = _productionDomainContext.Database.GetDbConnection();
-            _articleCache = new ArticleCache(connectionString: new DbConnectionString(_dataBaseConnection.ConnectionString));
+            dbProduction = Dbms.GetMasterDataBase(dbName: dbNameProduction, noTracking: false);
+            _articleCache = new ArticleCache(connectionString: new DbConnectionString(dbProduction.ConnectionString.Value));
             _messageHub = messageHub;
-            _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: _productionDomainContext
+            _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: dbProduction.DbContext
                 , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
@@ -110,8 +110,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void CreateContractAgent(T_CustomerOrder order)
         {
-            _productionDomainContext.CustomerOrders.Add(order);
-            _productionDomainContext.SaveChanges();
+            dbProduction.DbContext.CustomerOrders.Add(order);
+            dbProduction.DbContext.SaveChanges();
 
             var orderPart = order.CustomerOrderParts.First();
             _orderQueue.Enqueue(item: orderPart);
@@ -186,7 +186,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
             var eta = _estimatedThroughPuts.Get(name: order.Name);
-            Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");
+            Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
 
             long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
             if (period < 0 || eta.Value == 0)

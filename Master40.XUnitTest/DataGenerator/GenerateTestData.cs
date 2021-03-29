@@ -1,41 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using Master40.DataGenerator.Configuration;
-using Master40.DataGenerator.Generators;
+﻿using Master40.DataGenerator.Generators;
 using Master40.DataGenerator.Repository;
 using Master40.DataGenerator.Util;
 using Master40.DataGenerator.Verification;
 using Master40.DB;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper;
 using Master40.DB.GeneratorModel;
 using Master40.DB.Util;
 using MathNet.Numerics.Distributions;
+using System;
+using System.Collections.Generic;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Master40.XUnitTest.DataGenerator
 {
     public class GenerateTestData
     {
-        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-
+        
         //Es gibt wohl eine Diskripanz zwischen Master40 und SYMTEP was Operationen und Stücklisten (BOM) angeht (Struktur und Zeitpunkt)
         [Fact]
         public void SetInput()
         {
             var success = true;
-            var iterations = 1;
+            var iterations = 0.9;
 
-            for (var i = 0; i < iterations; i++)
+            for (var i = 0.1; i <= iterations; i += .1)
             {
-                var usePresetSeed = false;
+                var usePresetSeed = true;
                 var rng = new Random();
-                int seed = usePresetSeed ? 2083793265 : rng.Next();
+                int seed = usePresetSeed ? 368200759 : rng.Next();
 
-                var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+                var generatorDbCtx = Dbms.GetGeneratorDataBase("TestGeneratorContext").DbContext;
                 var approach = new Approach()
                 {
                     CreationDate = DateTime.Now,
@@ -43,66 +37,38 @@ namespace Master40.XUnitTest.DataGenerator
                 };
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
-                var individualMachiningTime = false;
+                var individualMachiningTime = true;
                 approach.TransitionMatrixInput = new TransitionMatrixInput
                 {
-                    DegreeOfOrganization = 0.13,
+                    DegreeOfOrganization = i,
                     Lambda = 1.3,
                     InfiniteTools = true,
-                    ExtendedTransitionMatrix = true,
+                    ExtendedTransitionMatrix = false,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
                         MeanMachiningTime = 1,
                         VarianceMachiningTime = 0
                     },
                     WorkingStations = new List<WorkingStationParameterSet>()
-                    {
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
-                            },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
-                            },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
-                            },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
-                            },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
-                            OperatorCount = 0
-                        }
-                    }
                 };
+
+                for (int j = 0; j < 4; j++)
+                {
+                    approach.TransitionMatrixInput.WorkingStations.Add(
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
+                            {
+                                MeanMachiningTime = 10, VarianceMachiningTime = 2
+                            },
+                            ResourceCount = 4,
+                            ToolCount = 6,
+                            SetupTime = 30,
+                            OperatorCount = 1
+                        });
+                }
+
+
 
                 //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
                 //-> Anpassung der Nebenbedingung: Fertigungstiefe muss mindestens 2 sein
@@ -111,13 +77,13 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 100 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.85 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 1.4 : rng.NextDouble() + 1,
-                    MeanIncomingMaterialAmount = 1.6,
-                    StdDevIncomingMaterialAmount = 0.5,
-                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 8.0,
+                    EndProductCount = !randomGeneratedInputValues ? 35 : rng.Next(9) + 2, // 100
+                    DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1, 
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.41: rng.NextDouble() + 1, // 2 
+                    ReutilisationRatio = !randomGeneratedInputValues ? 1 : rng.NextDouble() + 1, // 5
+                    MeanIncomingMaterialAmount = 1,
+                    StdDevIncomingMaterialAmount = 0,
+                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 5.0,
                     VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 0.0
                 };
                 //System.Diagnostics.Debug.WriteLine(approach.ProductStructureInput.ToString());
@@ -140,19 +106,19 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            var approachRangeStart = 18;
-            var approachRangeEnd = 18;
+            var approachRangeStart = 17;
+            var approachRangeEnd = 17;
             for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
                 var approachId = i;
-                var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+                var generatorDbCtx = Dbms.GetGeneratorDataBase("TestGeneratorContext").DbContext;
                 var approach = ApproachRepository.GetApproachById(generatorDbCtx, approachId);
 
                 /*var parameterSet = ParameterSet.Create(new object[] { Dbms.GetNewMasterDataBase(false, "Master40") });
                 var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();*/
 
-                var dbContext = MasterDBContext.GetContext(testCtxString);
-                var resultContext = ResultContext.GetContext(testResultCtxString);
+                var dbContext = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
+                var resultContext = Dbms.GetResultDataBase("TestResults").DbContext;
 
                 var generator = new MainGenerator();
                 generator.StartGeneration(approach, dbContext, resultContext, true, 0.4);
@@ -165,9 +131,9 @@ namespace Master40.XUnitTest.DataGenerator
         public void CheckOrganizationDegreeFromResults()
         {
             var simNumber = 27;
-            var dbContext = MasterDBContext.GetContext(testCtxString);
-            var dbResultCtx = ResultContext.GetContext(testResultCtxString);
-            var dbGeneratorCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+            var dbContext = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
+            var dbResultCtx = Dbms.GetResultDataBase("TestResults").DbContext;
+            var dbGeneratorCtx = Dbms.GetGeneratorDataBase("TestGeneratorContext").DbContext;
 
             var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
             transitionMatrixGeneratorVerifier.VerifySimulatedData(dbContext, dbGeneratorCtx, dbResultCtx, simNumber);

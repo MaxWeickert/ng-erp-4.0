@@ -4,13 +4,12 @@ using System.Threading.Tasks;
 using Akka.Actor;
 using AkkaSim;
 using AkkaSim.Logging;
-using Master40.Tools.Connectoren.Ganttplan;
 using NLog;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore
 {
-    public class AgentStateManager : StateManager
+    public class AgentStateManager : StateManager, IStateManager
     {
         private readonly List<IActorRef> _collectorRefs;
         private readonly Inbox _inbox;
