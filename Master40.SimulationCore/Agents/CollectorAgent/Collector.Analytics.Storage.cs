@@ -89,10 +89,26 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
 
             stockTotals.ForEach(st => CreateKpi(st.Key, st.Value, writeToDatabase));
-
+            GatherKpiForAI();
             LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finish Update Feed from Storage");
+        }
+
+        private void GatherKpiForAI()
+        {
+            //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
+            //KPI gathering starts before settling start
+            if (Collector.Time <= 480) return;
+            var assembly = StockTotalValues.Find(k => k.Name == "Assembly" && k.Time == Collector.Time);
+            var fAssembly = new FKpi.FKpi(assembly.Time, assembly.Name, assembly.Value);
+            Collector.SendKpi(fAssembly);
+            var consumable = StockTotalValues.Find(k => k.Name == "Consumab" && k.Time == Collector.Time);
+            var fConsumable = new FKpi.FKpi(consumable.Time, consumable.Name, consumable.Value);
+            Collector.SendKpi(fConsumable);
+            var material = StockTotalValues.Find(k => k.Name == "Material" && k.Time == Collector.Time);
+            var fMaterial = new FKpi.FKpi(material.Time, material.Name, material.Value);
+            Collector.SendKpi(fMaterial);
         }
 
 

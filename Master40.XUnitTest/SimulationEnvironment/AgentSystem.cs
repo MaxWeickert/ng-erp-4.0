@@ -167,7 +167,7 @@ END");
             }
 
         }
-        
+
         private void GetSetups(M_Resource resource, ProductionDomainContext masterCtx)
         {
             if (!resource.IsPhysical)
@@ -177,7 +177,7 @@ END");
                     .ThenInclude(x => x.ResourceCapability)
                 .Include(x => x.Resource)
                 .Where(x => x.ResourceId == resource.Id).ToList();
-            
+
             System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with following setups...");
             foreach (var setup in setups)
             {
@@ -201,14 +201,15 @@ END");
         {
             var simNumber = 16000;
             var throughput = 1920;
+            var seed = 594;
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 5; i++)
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.015, false, false
                 };
-                throughput += 100;
+                //throughput += 100;
             }
         }
 
@@ -219,10 +220,11 @@ END");
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially
-            , bool createMeasurements = false)
+            , bool createMeasurements = false, int numberOfValuesForPrediction = 4)
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.File, CustomLogger.AIPREDICTIONS, LogLevel.Info, LogLevel.Info);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
@@ -294,7 +296,7 @@ END");
             Assert.True(condition: simWasReady);
         }
 
-        [Fact (Skip = "Offline")]
+        [Fact(Skip = "Offline")]
         public void AggreteResults()
         {
             var _resultContext = Dbms.GetResultDataBase("TestResult").DbContext;
@@ -302,8 +304,8 @@ END");
             var aggregator = new ResultAggregator(_resultContext);
             aggregator.BuildResults(1);
         }
-        
-        
+
+
         [Fact]
         private void ArgumentConverter()
         {

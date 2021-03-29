@@ -1,4 +1,11 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
+using System.Text;
+using AiProvider.DataStuctures;
+using Akka.Actor;
+using Akka.Util.Internal;
 using AkkaSim.Definitions;
 using Master40.DB;
 using Master40.DB.Data.Context;
@@ -6,6 +13,7 @@ using Master40.DB.Data.Helper;
 using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
@@ -14,11 +22,12 @@ using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
+using Master40.SimulationCore.Helper.AiProvider;
 using Master40.SimulationCore.Types;
 using Master40.Tools.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
@@ -27,10 +36,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
     {
         private DataBase<ProductionDomainContext> dbProduction { get; set; }
         private IMessageHub _messageHub { get; set; }
+        private HubConnection _connection;
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
         private OrderCounter _orderCounter { get; set; }
+        private float _lastTimestamp { get; set; } = 0;
+        private float _newKpiTimestamp { get; set; } = 0;
+        private float _lastPredict { get; set; } = 0;
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
         private decimal _transitionFactor { get; set; }
@@ -39,6 +52,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
+        private int _numberOfValuesForPrediction { get; set; }
+        private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
+        private List<SimulationKpis> Kpis { get; set; } = new List<SimulationKpis>();
+        
         public  Default(string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
@@ -54,6 +71,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
+            _numberOfValuesForPrediction = configuration.GetOption<UsePredictedThroughput>().Value;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
 
         }
@@ -67,6 +85,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 case CreateContractAgent instruction: CreateContractAgent(order: instruction.GetObjectFromMessage); break;
                 case RequestArticleBom instruction: RequestArticleBom(articleId: instruction.GetObjectFromMessage); break;
                 case OrderProvided instruction: OrderProvided(instruction: instruction); break;
+                case AddKpi instruction: AddToKpi(kpi: instruction.GetObjectFromMessage); break; //new
                 case SystemCheck instruction: SystemCheck(); break;
                 case EndSimulation instruction: End(); break;
                 case PopOrder p: PopOrder(); break;
@@ -156,6 +175,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void PopOrder()
         {
+            if (Kpis.Count >= _numberOfValuesForPrediction && _lastPredict < _newKpiTimestamp && _numberOfValuesForPrediction != 0)
+            {
+                KickoffThroughputPrediction(Agent);
+                _lastPredict = _newKpiTimestamp;
+            }
+
             if (!_orderCounter.TryAddOne()) return;
 
             var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
@@ -186,6 +211,85 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 _openOrders.RemoveAll(match: x => x.Id == order.Id);
             }
 
+        }
+
+        private void KickoffThroughputPrediction(Agent agent)
+        {
+            //var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - _numberOfValuesForPrediction)).Take(_numberOfValuesForPrediction); //set number of values for prediction
+            var valuesForPrediction = Kpis.FindAll(k => k.Time <= _newKpiTimestamp); //all kpis for prediction, possibly bad for efficiency
+            var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction, agent);
+            _estimatedThroughPuts.UpdateAll(predictedThroughput); //TODO: differentiate between articles -> use "UpdateOrCreate" method
+        }
+
+        private void AddToKpi(FKpi.FKpi kpi)
+        {
+            if (_lastTimestamp < kpi.Time)
+            {
+                _newKpiTimestamp = _lastTimestamp;
+                switch (kpi.Name)
+                {
+                    case "Assembly":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, assembly: (float)kpi.Value));
+                        break;
+                    case "Consumab":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, consumable: (float)kpi.Value));
+                        break;
+                    case "Material":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
+                        break;
+                    case "Total":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, total: (float)kpi.Value));
+                        break;
+                    case "InDueTotal":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, inDueTotal: (float)kpi.Value));
+                        break;
+                    case "Lateness":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, lateness: (float)kpi.Value));
+                        break;
+                    case "CycleTime":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, cycleTime: (float)kpi.Value));
+                        break;
+                    default:
+                        Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
+                        break;
+                }
+
+                _lastTimestamp = (float)kpi.Time;
+            }
+            else
+            {
+                var kpiFromList = Kpis.Find(k => k.Time == kpi.Time);
+
+                //kpiFromList[kpi.Name] = kpi.Value;
+
+                switch (kpi.Name)
+                {
+                    case "Assembly":
+                        kpiFromList.Assembly = (float)kpi.Value;
+                        break;
+                    case "Consumab":
+                        kpiFromList.Consumab = (float)kpi.Value;
+                        break;
+                    case "Material":
+                        kpiFromList.Material = (float)kpi.Value;
+                        break;
+                    case "Total":
+                        kpiFromList.Total = (float)kpi.Value;
+                        break;
+                    case "InDueTotal":
+                        kpiFromList.InDueTotal = (float)kpi.Value;
+                        break;
+                    case "Lateness":
+                        kpiFromList.Lateness = (float)kpi.Value;
+                        break;
+                    case "CycleTime":
+                        kpiFromList.CycleTime = (float)kpi.Value;
+                        break;
+                    default:
+                        Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
+                        break;
+                }
+            }
         }
     }
 }
