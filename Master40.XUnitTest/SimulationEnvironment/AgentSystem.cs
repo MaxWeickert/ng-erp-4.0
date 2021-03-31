@@ -214,6 +214,7 @@ END");
         }
 
         [Theory]
+
         [MemberData(nameof(GetTestData))]
         public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
@@ -259,15 +260,15 @@ END");
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
-            simConfig.ReplaceOption(new KpiTimeSpan(1440));
+            simConfig.ReplaceOption(new KpiTimeSpan(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: int.MaxValue));
+            simConfig.ReplaceOption(new OrderQuantity(value: 150));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 3360));
-            simConfig.ReplaceOption(new SimulationEnd(value: 525600));
+            simConfig.ReplaceOption(new SettlingStart(value: 0));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

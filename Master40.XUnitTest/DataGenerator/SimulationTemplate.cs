@@ -39,7 +39,7 @@ namespace Master40.XUnitTest.DataGenerator
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
-                        , int.Parse(5.ToString() + approach.ToString().PadLeft(3, '0')
+                        , int.Parse(500.ToString() + approach.ToString().PadLeft(3, '0')
                                                  + i.ToString().PadLeft(2, '0'))  //SimulationNumber
                     };
                 }
@@ -154,6 +154,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MinDeliveryTime(value: minDeliveryTime));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
+            simConfig.ReplaceOption(new UsePredictedThroughput(value: 0));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
 

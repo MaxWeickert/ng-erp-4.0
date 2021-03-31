@@ -55,7 +55,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private int _numberOfValuesForPrediction { get; set; }
         private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
         private List<SimulationKpis> Kpis { get; set; } = new List<SimulationKpis>();
-        public  Default(ProductionDomainContext productionDomainContext
+        
+        public  Default(string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
@@ -230,7 +231,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     case "Assembly":
                         Kpis.Add(new SimulationKpis((float)kpi.Time, assembly: (float)kpi.Value));
                         break;
-                    case "Consumab":
+                    case "Consumable":
                         Kpis.Add(new SimulationKpis((float)kpi.Time, consumable: (float)kpi.Value));
                         break;
                     case "Material":
@@ -266,7 +267,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     case "Assembly":
                         kpiFromList.Assembly = (float)kpi.Value;
                         break;
-                    case "Consumab":
+                    case "Consumable":
                         kpiFromList.Consumab = (float)kpi.Value;
                         break;
                     case "Material":
