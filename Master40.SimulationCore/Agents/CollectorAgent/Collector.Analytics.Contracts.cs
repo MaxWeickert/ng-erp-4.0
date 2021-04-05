@@ -102,7 +102,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                                   Time = Collector.Time }));
             
             CreateKpis(finalCall);
-            GatherKpiForAI(finalCall);
+            if (Collector.Config.GetOption<UsePredictedThroughput>().Value > 0)
+            {
+                GatherKpiForAI(finalCall);
+            }
             WriteToDb(agent: Collector, finalCall: finalCall);
 
             orderDictionary[OrderKpi.OrderState.New].ToZero();

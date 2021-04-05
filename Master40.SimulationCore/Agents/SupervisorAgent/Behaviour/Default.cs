@@ -175,7 +175,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void PopOrder()
         {
-            if (Kpis.Count >= _numberOfValuesForPrediction && _lastPredict < _newKpiTimestamp && _numberOfValuesForPrediction != 0)
+            if (Kpis.Count >= _numberOfValuesForPrediction && _lastPredict < _newKpiTimestamp && _numberOfValuesForPrediction > 0)
             {
                 KickoffThroughputPrediction(Agent);
                 _lastPredict = _newKpiTimestamp;

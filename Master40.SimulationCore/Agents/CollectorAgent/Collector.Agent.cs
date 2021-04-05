@@ -26,6 +26,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal SimulationKind simulationKind;
         internal SaveToDB saveToDB;
         internal long maxTime;
+        internal int usePredictedThroughput;
         internal List<Kpi> Kpis { get; } = new List<Kpi>();
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
@@ -52,6 +53,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             simulationKind = Config.GetOption<SimulationKind>();
             saveToDB = Config.GetOption<SaveToDB>();
             maxTime = Config.GetOption<SimulationEnd>().Value;
+            usePredictedThroughput = Config.GetOption<UsePredictedThroughput>().Value;
             messageHub.SendToAllClients(msg: "Collector initialized: " + Self.Path.ToStringWithAddress());
         }
 
@@ -94,12 +96,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         internal void SendKpi(FKpi.FKpi kpi)
         {
-            this.actorPaths.SimulationContext.Ref.Tell(
+            if (usePredictedThroughput > 0)
+            {
+                this.actorPaths.SimulationContext.Ref.Tell(
                 message: SupervisorAgent.Supervisor.Instruction.AddKpi.Create(
                     message: kpi
                     , target: this.actorPaths.SystemAgent.Ref
                 )
                 , sender: ActorRefs.NoSender);
+            }
         }
     }
 }
