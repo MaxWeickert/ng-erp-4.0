@@ -21,10 +21,11 @@ namespace Master40.XUnitTest.DataGenerator
         public void SetInput()
         {
             var success = true;
-            var iterations = 0.9;
+            var iterations = 1.0;
 
-            for (var i = 0.1; i <= iterations; i += .1)
+            /*for (var i = 1.0; i <= iterations; i += 0.0)
             {
+            */
                 var usePresetSeed = true;
                 var rng = new Random();
                 int seed = usePresetSeed ? 368200759 : rng.Next();
@@ -40,7 +41,7 @@ namespace Master40.XUnitTest.DataGenerator
                 var individualMachiningTime = true;
                 approach.TransitionMatrixInput = new TransitionMatrixInput
                 {
-                    DegreeOfOrganization = i,
+                    DegreeOfOrganization = iterations,
                     Lambda = 1.3,
                     InfiniteTools = true,
                     ExtendedTransitionMatrix = false,
@@ -98,7 +99,7 @@ namespace Master40.XUnitTest.DataGenerator
                 generatorDbCtx.SaveChanges();
 
                 System.Diagnostics.Debug.WriteLine("################################# Generated test data have the approach id of " + approach.Id);
-            }
+            //}
 
             Assert.True(success);
         }
