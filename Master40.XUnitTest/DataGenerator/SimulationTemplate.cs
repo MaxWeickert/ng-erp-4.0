@@ -98,7 +98,7 @@ namespace Master40.XUnitTest.DataGenerator
                                         , SimulationType simulationType
                                         , int simulationNumber)
         {
-            var mainDbName = "Test";
+            var mainDbName = "NewSimTemplateDBTest";
             DataBase<ResultContext> DbResult = Dbms.GetResultDataBase(dbName: $"{mainDbName}Results");
             DataBase<ProductionDomainContext> DbMasterCtx = Dbms.GetMasterDataBase(dbName: mainDbName);
             DataBase<DataGeneratorContext> DbGenerator = Dbms.GetGeneratorDataBase(dbName: "TestGeneratorContext");
