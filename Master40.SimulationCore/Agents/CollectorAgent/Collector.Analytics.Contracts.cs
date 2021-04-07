@@ -123,27 +123,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //KPI gathering starts before settling start
             if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
 
-            var total = Collector.Kpis.Find(k => k.Name == "Total" && k.Time == Collector.Time);
-            if (total != null)
-            {
-                var fTotal = new FKpi.FKpi(total.Time, total.Name, total.Value);
-                Collector.SendKpi(fTotal);
-            }
-
-            var inDueTotal = Collector.Kpis.Find(k => k.Name == "InDueTotal" && k.Time == Collector.Time);
-            if (inDueTotal != null)
-            {
-                var fInDueTotal = new FKpi.FKpi(inDueTotal.Time, inDueTotal.Name, inDueTotal.Value);
-                Collector.SendKpi(fInDueTotal);
-            }
-
-            var lateness = Collector.Kpis.Find(k => k.Name == "Lateness" && k.Time == Collector.Time);
-            if (lateness != null)
-            {
-                var fLateness = new FKpi.FKpi(lateness.Time, lateness.Name, lateness.Value);
-                Collector.SendKpi(fLateness);
-            }
-
             var cycleTime = Collector.Kpis.Find(k => k.Name == "CycleTime" && k.Time == Collector.Time);
             if (cycleTime != null)
             {

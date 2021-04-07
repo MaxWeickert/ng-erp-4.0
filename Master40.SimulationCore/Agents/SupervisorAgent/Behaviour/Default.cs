@@ -221,6 +221,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _estimatedThroughPuts.UpdateAll(predictedThroughput); //TODO: differentiate between articles -> use "UpdateOrCreate" method
         }
 
+        //TODO:
+        //- Inhalt der Stored Procedures hier her übergeben
+        //- Gather Resource KPIS
+        //- Wie können die KPIs Auftragsbezogen gesammelt werden?
         private void AddToKpi(FKpi.FKpi kpi)
         {
             if (_lastTimestamp < kpi.Time)
@@ -237,14 +241,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     case "Material":
                         Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
                         break;
-                    case "Total":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, total: (float)kpi.Value));
+                    case "OpenOrders":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, openOrders: (float)kpi.Value));
                         break;
-                    case "InDueTotal":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, inDueTotal: (float)kpi.Value));
-                        break;
-                    case "Lateness":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, lateness: (float)kpi.Value));
+                    case "NewOrders":
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, newOrders: (float)kpi.Value));
                         break;
                     case "CycleTime":
                         Kpis.Add(new SimulationKpis((float)kpi.Time, cycleTime: (float)kpi.Value));
@@ -268,19 +269,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                         kpiFromList.Assembly = (float)kpi.Value;
                         break;
                     case "Consumable":
-                        kpiFromList.Consumab = (float)kpi.Value;
+                        kpiFromList.Consumable = (float)kpi.Value;
                         break;
                     case "Material":
                         kpiFromList.Material = (float)kpi.Value;
-                        break;
-                    case "Total":
-                        kpiFromList.Total = (float)kpi.Value;
-                        break;
-                    case "InDueTotal":
-                        kpiFromList.InDueTotal = (float)kpi.Value;
-                        break;
-                    case "Lateness":
-                        kpiFromList.Lateness = (float)kpi.Value;
                         break;
                     case "CycleTime":
                         kpiFromList.CycleTime = (float)kpi.Value;
