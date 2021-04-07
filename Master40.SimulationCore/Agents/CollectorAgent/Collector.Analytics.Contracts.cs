@@ -121,7 +121,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
             //KPI gathering starts before settling start
-            if (Collector.Time <= Collector.Config.GetOption<KpiTimeSpan>().Value) return;
+            if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
 
             var total = Collector.Kpis.Find(k => k.Name == "Total" && k.Time == Collector.Time);
             if (total != null)
@@ -137,6 +137,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Collector.SendKpi(fInDueTotal);
             }
 
+            var lateness = Collector.Kpis.Find(k => k.Name == "Lateness" && k.Time == Collector.Time);
+            if (lateness != null)
+            {
+                var fLateness = new FKpi.FKpi(lateness.Time, lateness.Name, lateness.Value);
+                Collector.SendKpi(fLateness);
+            }
+
             var cycleTime = Collector.Kpis.Find(k => k.Name == "CycleTime" && k.Time == Collector.Time);
             if (cycleTime != null)
             {
@@ -144,11 +151,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Collector.SendKpi(fCycleTime);
             }
 
-            var lateness = Collector.Kpis.Find(k => k.Name == "Lateness" && k.Time == Collector.Time);
-            if (lateness != null)
+            var openOrders = Collector.Kpis.Find(k => k.Name == "Open" && k.Time == Collector.Time);
+            if (openOrders != null)
             {
-                var fLateness = new FKpi.FKpi(lateness.Time, lateness.Name, lateness.Value);
-                Collector.SendKpi(fLateness);
+                var fOpenOrders = new FKpi.FKpi(openOrders.Time, openOrders.Name, openOrders.Value);
+                Collector.SendKpi(fOpenOrders);
+            }
+
+            var newOrders = Collector.Kpis.Find(k => k.Name == "New" && k.Time == Collector.Time);
+            if (newOrders != null)
+            {
+                var fNewOrders = new FKpi.FKpi(newOrders.Time, newOrders.Name, newOrders.Value);
+                Collector.SendKpi(fNewOrders);
             }
         }
 
