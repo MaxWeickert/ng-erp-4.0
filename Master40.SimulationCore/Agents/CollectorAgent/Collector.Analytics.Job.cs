@@ -138,22 +138,29 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             ThroughPut(finalCall);
             CallTotal(finalCall);
             CallAverageIdle(finalCall);
-            //GatherKpiForAI(finalCall);
+            if (Collector.Config.GetOption<UsePredictedThroughput>().Value > 0)
+            {
+                GatherKpiForAI(finalCall);
+            }
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }
 
-        //private void GatherKpiForAI(bool finalCall)
-        //{
-        //    // Samle relevante kpi - Lateness, Assembly, Total, CycleTime, Consumabl, Material, InDueTotal
-        //    // Generiere CycleTime/Trhoughput Time 
-        //    // Sende sie an den Supervisor
-        //    //Collector.SendKpis(/* fill me */);
-        //    Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.KpiType == KpiType.StockTotals));
-        //    Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.KpiType == KpiType.AdherenceToDue));
-        //    Collector.SendKpis();
-        //}
+        private void GatherKpiForAI(bool finalCall)
+        {
+            //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
+            //KPI gathering starts before settling start
+            if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
+
+            var allCapabilityIdle = Collector.Kpis.FindAll(k => k.KpiType == KpiType.CapabilityIdle && k.Time == Collector.Time);
+            if (allCapabilityIdle != null)
+            {
+                var capabilityIdle = allCapabilityIdle.Average(k => k.Value); //TODO: AVG!
+                var fCapabilityIdle = new FKpi.FKpi(Collector.Time, "CapabilityIdle", capabilityIdle);
+                Collector.SendKpi(fCapabilityIdle);
+            }
+        }
 
         private void CallAverageIdle(bool finalCall)
         {
