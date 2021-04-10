@@ -1,9 +1,10 @@
 ﻿using Master40.DB.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Master40.DB.Data.Initializer.StoredProcedures
 {
-    public static class ArticleStatistics
+    public class ArticleStatistics
     {
         public static void CreateProcedures(MasterDBContext ctx)
         {
@@ -55,7 +56,7 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 				command.ExecuteNonQuery();
 			}
 		}
-
+		//!!TODO: Build an object an return all values in one function.
 		public static long DeliveryDateEstimator(int articleId, double factor, MasterDBContext dBContext)
         {
 			var sql = string.Format("Execute ArticleCTE {0}", articleId);
@@ -69,7 +70,7 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 				{
 					while (reader.Read())
 					{
-						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Prodktionsaufträge {2}", reader[0], reader[1], reader[2]));
+						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], reader[2]));
 						// TODO Catch false informations
 						estimatedProductDelivery = (long)(System.Convert.ToInt64(reader[0]) * factor);
 						System.Diagnostics.Debug.WriteLine("Estimated Product Delivery{0}", estimatedProductDelivery);
@@ -80,5 +81,95 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 			return estimatedProductDelivery;
 		}
 
-    }
+		public static long GetSumDuration(int articleId, MasterDBContext dBContext)
+		{
+			var sql = string.Format("Execute ArticleCTE {0}", articleId);
+			var sumDuration = 0L;
+			using (var command = dBContext.Database.GetDbConnection().CreateCommand())
+			{
+				command.CommandText = sql;
+				dBContext.Database.OpenConnection();
+				using (var reader = command.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						sumDuration = (long)System.Convert.ToInt64(reader[0]);
+					}
+				}
+			}
+			return sumDuration;
+		}
+
+		public static long GetSumOperations(int articleId, MasterDBContext dBContext)
+		{
+			var sql = string.Format("Execute ArticleCTE {0}", articleId);
+			var sumOperations = 0L;
+			using (var command = dBContext.Database.GetDbConnection().CreateCommand())
+			{
+				command.CommandText = sql;
+				dBContext.Database.OpenConnection();
+				using (var reader = command.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						sumOperations = (long)System.Convert.ToInt64(reader[1]);
+					}
+				}
+			}
+			return sumOperations;
+		}
+
+		public static long GetProductionOrders(int articleId, MasterDBContext dBContext)
+		{
+			var sql = string.Format("Execute ArticleCTE {0}", articleId);
+			var productionOrders = 0L;
+			using (var command = dBContext.Database.GetDbConnection().CreateCommand())
+			{
+				command.CommandText = sql;
+				dBContext.Database.OpenConnection();
+				using (var reader = command.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						productionOrders = (long)System.Convert.ToInt64(reader[2]);
+					}
+				}
+			}
+			return productionOrders;
+		}
+
+		/*public Dictionary<string, long> ProductCharacteristics(int articleId, MasterDBContext dBContext)
+		{
+			var sql = string.Format("Execute ArticleCTE {0}", articleId);
+			//var estimatedProductDelivery = 2880L;
+			//var productCharacteristics = new { sumDuration = "0", sumOperations = "0", productionOrders = "0" };
+*//*			var productCharacteristics = new Dictionary<string, long> {
+				{ "sumDuration", 0 },
+				{ "sumOperations", 0 },
+				{ "productionOrders", 0 }
+			};*//*
+			//var productCharacteristics = new Dictionary<string, long>{ sumDuration: "0", sumOperations: "0", productionOrders: "0" };
+			using (var command = dBContext.Database.GetDbConnection().CreateCommand())
+			{
+
+				command.CommandText = sql;
+				dBContext.Database.OpenConnection();
+				using (var reader = command.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], reader[2]));
+						// TODO Catch false informations
+						//var productCharacteristics = new { sumDuration: (long)System.Convert.ToInt64(reader[0]), sumOperations: (long)System.Convert.ToInt64(reader[1]), productionOrders: (long)System.Convert.ToInt64(reader[2])}
+						//productCharacteristics = new { sumDuration = (long)System.Convert.ToInt64(reader[0]), sumOperations = (long)System.Convert.ToInt64(reader[1]), productionOrders = (long)System.Convert.ToInt64(reader[2]) };
+						//productCharacteristics.sumDuration = (long)System.Convert.ToInt64(reader[0]);
+						productCharacteristics.sumDuration = "1";
+					}
+
+				}
+			}
+			return productCharacteristics;
+		}*/
+
+	}
 }
