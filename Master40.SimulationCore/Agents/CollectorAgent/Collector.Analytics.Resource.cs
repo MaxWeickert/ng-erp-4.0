@@ -137,11 +137,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             archiveOperationTask.AddRange(tempOperationTasks);
             archiveSetupTask.AddRange(tempSetupTasks);
 
-            //TODO!
-/*            if (Collector.Config.GetOption<UsePredictedThroughput>().Value > 0)
+            if (Collector.Config.GetOption<UsePredictedThroughput>().Value > 0)
             {
                 GatherKpiForAI(finalCall);
-            }*/
+            }
 
             LogToDB(writeResultsToDB: finalCall);
 
@@ -154,28 +153,21 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
         {
             //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
             //KPI gathering starts before settling start
-/*            if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
+            if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
 
-            var cycleTime = Collector.Kpis.Find(k => k.Name == "CycleTime" && k.Time == Collector.Time);
-            if (cycleTime != null)
+            var totalWork = Collector.Kpis.Find(k => k.Name == "TotalWork" && k.Time == Collector.Time);
+            if (totalWork != null)
             {
-                var fCycleTime = new FKpi.FKpi(cycleTime.Time, cycleTime.Name, cycleTime.Value);
-                Collector.SendKpi(fCycleTime);
+                var fTotalWork = new FKpi.FKpi(totalWork.Time, totalWork.Name, totalWork.Value);
+                Collector.SendKpi(fTotalWork);
             }
 
-            var openOrders = Collector.Kpis.Find(k => k.Name == "Open" && k.Time == Collector.Time);
-            if (openOrders != null)
+            var totalSetup = Collector.Kpis.Find(k => k.Name == "TotalSetup" && k.Time == Collector.Time);
+            if (totalSetup != null)
             {
-                var fOpenOrders = new FKpi.FKpi(openOrders.Time, openOrders.Name, openOrders.Value);
-                Collector.SendKpi(fOpenOrders);
+                var fTotalSetup = new FKpi.FKpi(totalSetup.Time, totalSetup.Name, totalSetup.Value);
+                Collector.SendKpi(fTotalSetup);
             }
-
-            var newOrders = Collector.Kpis.Find(k => k.Name == "New" && k.Time == Collector.Time);
-            if (newOrders != null)
-            {
-                var fNewOrders = new FKpi.FKpi(newOrders.Time, newOrders.Name, newOrders.Value);
-                Collector.SendKpi(fNewOrders);
-            }*/
         }
 
         /// <summary>
