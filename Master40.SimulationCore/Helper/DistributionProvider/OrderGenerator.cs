@@ -72,13 +72,17 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
             var productId = _productIds.ElementAt(index: _prodVariation.Sample());
 
             var due = ArticleStatistics.DeliveryDateEstimator(productId, _duetime.Sample(), _productionDomainContext);
+            var sumDuration = ArticleStatistics.GetSumDuration(productId, _productionDomainContext);
+            var sumOperations = ArticleStatistics.GetSumOperations(productId, _productionDomainContext);
+            var sumOrders = ArticleStatistics.GetProductionOrders(productId, _productionDomainContext);
             // The old way
             //create order and orderpart, duetime is creationtime + 1 day
             due = time + creationTime + due;
             System.Diagnostics.Debug.WriteLineIf(condition: _debug, message: "Product(" + productId + ")" + ";" + time + ";" + due);
 
             // only Returns new Order does not save context.
-            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: 1, creationTime: time + creationTime, dueTime: due);
+            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: 1, creationTime: time + creationTime, 
+                dueTime: due, sumDuration: sumDuration, sumOperations: sumOperations, productionOrders: sumOrders);
             return order;
         }
     }

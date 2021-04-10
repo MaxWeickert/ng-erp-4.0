@@ -88,7 +88,7 @@ namespace Master40.DB.Data.Context
         /// <param name="creationTime"></param>
         /// <param name="dueTime"></param>
         /// <returns></returns>
-        public T_CustomerOrder CreateNewOrder(int orderid, int orderpartid, int articleId, int amount, long creationTime, long dueTime)
+        public T_CustomerOrder CreateNewOrder(int orderid, int orderpartid, int articleId, int amount, long creationTime, long dueTime, long sumDuration, long sumOperations, long productionOrders)
         {
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(item: new T_CustomerOrderPart
@@ -105,6 +105,9 @@ namespace Master40.DB.Data.Context
                 Id = orderid,
                 BusinessPartnerId = bp.Id,
                 DueTime = (int)dueTime,
+                SumDuration = (int)sumDuration,
+                SumOperations = (int)sumOperations,
+                ProductionOrders = (int)productionOrders,
                 CreationTime = (int)creationTime,
                 Name = Articles.Single(predicate: x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
@@ -114,7 +117,7 @@ namespace Master40.DB.Data.Context
             return order;
         }
 
-        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime, long sumDuration, long sumOperations, long productionOrders)
         {
             var article = Articles.Single(x => x.Id == articleId);
             var olist = new List<T_CustomerOrderPart>();
@@ -132,6 +135,9 @@ namespace Master40.DB.Data.Context
             {
                 BusinessPartnerId = bp.Id,
                 DueTime = (int)dueTime,
+                SumDuration = (int)sumDuration,
+                SumOperations = (int)sumOperations,
+                ProductionOrders = (int)productionOrders,
                 CreationTime = (int)creationTime,
                 DueDateTime = dueTime.ToDateTime(),
                 Name = Articles.Single(predicate: x => x.Id == articleId).Name,
