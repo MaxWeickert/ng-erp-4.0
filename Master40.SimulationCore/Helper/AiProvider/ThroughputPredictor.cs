@@ -22,43 +22,44 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
         public long PredictThroughput(List<SimulationKpis> valuesForPrediction, Agent agent)
         {
-            var kpisForPredict = getReshapedKpisForPrediction(valuesForPrediction);
+            /*            var kpisForPredict = getReshapedKpisForPrediction(valuesForPrediction);
 
-            ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
+                        ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
 
-            // Create prediction engine related to the loaded trained model.
-            var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpisReshaped, CycleTimePrediction>(trainedModel);
+                        // Create prediction engine related to the loaded trained model.
+                        var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpisReshaped, CycleTimePrediction>(trainedModel);
 
-            var resultPrediction = predEngine.Predict(kpisForPredict);
+                        var resultPrediction = predEngine.Predict(kpisForPredict);
 
 
-            // Compare actual Value and predicted Value
-/*            if (predictedActualThroughputList.Count == 0)
-            {
-                predictedActualThroughputList.Add(new float[] { valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0 });
-            }
-            else
-            {
-                predictedActualThroughputList.Last()[2] =
-                    valuesForPrediction.Find(v => v.Time == predictedActualThroughputList.Last()[0] + 480).CycleTime;
-                agent.DebugMessage(JsonConvert.SerializeObject(predictedActualThroughputList.Last()), CustomLogger.AIPREDICTIONS, LogLevel.Info);
-                var newEntry = new float[] {valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0};
-                predictedActualThroughputList.Add(newEntry);
-            }*/
+                        // Compare actual Value and predicted Value
+            *//*            if (predictedActualThroughputList.Count == 0)
+                        {
+                            predictedActualThroughputList.Add(new float[] { valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0 });
+                        }
+                        else
+                        {
+                            predictedActualThroughputList.Last()[2] =
+                                valuesForPrediction.Find(v => v.Time == predictedActualThroughputList.Last()[0] + 480).CycleTime;
+                            agent.DebugMessage(JsonConvert.SerializeObject(predictedActualThroughputList.Last()), CustomLogger.AIPREDICTIONS, LogLevel.Info);
+                            var newEntry = new float[] {valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0};
+                            predictedActualThroughputList.Add(newEntry);
+                        }*//*
 
-            return (long)Math.Round(resultPrediction.CycleTime, 0);
+                        return (long)Math.Round(resultPrediction.CycleTime, 0);*/
+            return 1980;
         }
 
-        private SimulationKpisReshaped getReshapedKpisForPrediction(List<SimulationKpis> kpiList)
+/*        private SimulationKpisReshaped getReshapedKpisForPrediction(List<SimulationKpis> kpiList)
         {
             var newKpi = new SimulationKpisReshaped
             {
                 Assembly_t0 = kpiList.Last().Assembly,
                 Assembly_t1 = kpiList[^2].Assembly,
                 Assembly_t2 = kpiList[^3].Assembly,
-                Consumab_t0 = kpiList.Last().Consumab,
-                Consumab_t1 = kpiList[^2].Consumab,
-                Consumab_t2 = kpiList[^3].Consumab,
+*//*                Consumab_t0 = kpiList.Last().Consumabl,
+                Consumab_t1 = kpiList[^2].Consumabl,
+                Consumab_t2 = kpiList[^3].Consumalb,
                 CycleTime_t0 = 0,
                 CycleTime_t1 = kpiList.Last().CycleTime,
                 CycleTime_t2 = kpiList[^2].CycleTime,
@@ -73,9 +74,9 @@ namespace Master40.SimulationCore.Helper.AiProvider
                 Material_t2 = kpiList[^3].Material,
                 Total_t0 = kpiList.Last().Total,
                 Total_t1 = kpiList[^2].Total,
-                Total_t2 = kpiList[^3].Total
+                Total_t2 = kpiList[^3].Total*//*
             };
             return newKpi;
-        }
+        }*/
     }
 }
