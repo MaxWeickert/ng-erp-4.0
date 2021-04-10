@@ -98,7 +98,7 @@ namespace Master40.XUnitTest.DataGenerator
                                         , SimulationType simulationType
                                         , int simulationNumber)
         {
-            var mainDbName = "NewSimTemplateDBTest";
+            var mainDbName = "Test";
             DataBase<ResultContext> DbResult = Dbms.GetResultDataBase(dbName: $"{mainDbName}Results");
             DataBase<ProductionDomainContext> DbMasterCtx = Dbms.GetMasterDataBase(dbName: mainDbName);
             DataBase<DataGeneratorContext> DbGenerator = Dbms.GetGeneratorDataBase(dbName: "TestGeneratorContext");
@@ -154,7 +154,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MinDeliveryTime(value: minDeliveryTime));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
-            simConfig.ReplaceOption(new UsePredictedThroughput(value: 0)); //TODO: if 0 don't gather KPIs
+            simConfig.ReplaceOption(new UsePredictedThroughput(value: 4));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
 
