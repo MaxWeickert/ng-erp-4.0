@@ -181,9 +181,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
             
-            Kpis.Add(new SimulationKpis((float)_lastTimestamp, sumDuration: order.SumDuration));
-            Kpis.Add(new SimulationKpis((float)_lastTimestamp, sumOperation: order.SumOperations));
-            Kpis.Add(new SimulationKpis((float)_lastTimestamp, productionOrders: order.ProductionOrders));
+            Kpis.Add(new SimulationKpis((float)_newKpiTimestamp, sumDuration: order.SumDuration));
+            Kpis.Add(new SimulationKpis((float)_newKpiTimestamp, sumOperation: order.SumOperations));
+            Kpis.Add(new SimulationKpis((float)_newKpiTimestamp, productionOrders: order.ProductionOrders));
 
             if (Kpis.Count >= _numberOfValuesForPrediction && _lastPredict < _newKpiTimestamp && _numberOfValuesForPrediction > 0)
             {
