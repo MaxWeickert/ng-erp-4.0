@@ -121,7 +121,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
             //KPI gathering starts before settling start
-            if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
+            //if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
 
             var cycleTime = Collector.Kpis.Find(k => k.Name == "CycleTime" && k.Time == Collector.Time);
             if (cycleTime != null)

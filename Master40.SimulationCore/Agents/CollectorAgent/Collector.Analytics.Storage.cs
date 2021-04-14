@@ -104,7 +104,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
             //KPI gathering starts before settling start
-            if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
+            //if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
 
             var assembly = StockTotalValues.Find(k => k.Name == "Assembly" && k.Time == Collector.Time);
             if (assembly != null)
@@ -113,12 +113,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Collector.SendKpi(fAssembly);
             }
 
-            var consumable = StockTotalValues.Find(k => k.Name == "Consumable" && k.Time == Collector.Time);
+/*            var consumable = StockTotalValues.Find(k => k.Name == "Consumable" && k.Time == Collector.Time);
             if (consumable != null)
             {
                 var fConsumable = new FKpi.FKpi(consumable.Time, consumable.Name, consumable.Value);
                 Collector.SendKpi(fConsumable);
-            }
+            }*/
 
             var material = StockTotalValues.Find(k => k.Name == "Material" && k.Time == Collector.Time);
             if (material != null)
