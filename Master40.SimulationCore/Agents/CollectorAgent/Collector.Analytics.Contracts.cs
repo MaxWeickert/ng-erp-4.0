@@ -123,12 +123,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //KPI gathering starts before settling start
             //if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
 
-            var cycleTime = Collector.Kpis.Find(k => k.Name == "CycleTime" && k.Time == Collector.Time);
+/*            var cycleTime = Collector.Kpis.Find(k => k.Name == "CycleTime" && k.Time == Collector.Time);
             if (cycleTime != null)
             {
                 var fCycleTime = new FKpi.FKpi(cycleTime.Time, cycleTime.Name, cycleTime.Value);
                 Collector.SendKpi(fCycleTime);
-            }
+            }*/
 
             var openOrders = Collector.Kpis.Find(k => k.Name == "Open" && k.Time == Collector.Time);
             if (openOrders != null)
