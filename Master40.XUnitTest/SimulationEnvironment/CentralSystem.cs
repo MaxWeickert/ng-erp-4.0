@@ -318,7 +318,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
             master40Context.SaveChanges();
 
-            master40Context.CreateNewOrder(10115, 1, 0, 250, 0, 0, 0);
+            master40Context.CreateNewOrder(10115, 1, 0, 250);
             master40Context.SaveChanges();
 
             GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);

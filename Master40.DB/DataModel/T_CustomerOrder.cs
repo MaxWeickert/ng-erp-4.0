@@ -10,9 +10,6 @@ namespace Master40.DB.DataModel
     {
         public string Name { get; set; }
         public int DueTime { get; set; }
-        public int SumDuration { get; set; }
-        public int SumOperations { get; set; }
-        public int ProductionOrders { get; set; }
         public DateTime DueDateTime { get; set; }
         public int CreationTime { get; set; }
         public int FinishingTime { get; set; }

@@ -88,7 +88,7 @@ namespace Master40.DB.Data.Context
         /// <param name="creationTime"></param>
         /// <param name="dueTime"></param>
         /// <returns></returns>
-        public T_CustomerOrder CreateNewOrder(int orderid, int orderpartid, int articleId, int amount, long creationTime, long dueTime, long sumDuration, long sumOperations, long productionOrders)
+        public T_CustomerOrder CreateNewOrder(int orderid, int orderpartid, int articleId, int amount, long creationTime, long dueTime)
         {
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(item: new T_CustomerOrderPart
@@ -105,9 +105,6 @@ namespace Master40.DB.Data.Context
                 Id = orderid,
                 BusinessPartnerId = bp.Id,
                 DueTime = (int)dueTime,
-                SumDuration = (int)sumDuration,
-                SumOperations = (int)sumOperations,
-                ProductionOrders = (int)productionOrders,
                 CreationTime = (int)creationTime,
                 Name = Articles.Single(predicate: x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
@@ -117,7 +114,7 @@ namespace Master40.DB.Data.Context
             return order;
         }
 
-        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime, long sumDuration, long sumOperations, long productionOrders)
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
         {
             var article = Articles.Single(x => x.Id == articleId);
             var olist = new List<T_CustomerOrderPart>();
@@ -135,9 +132,6 @@ namespace Master40.DB.Data.Context
             {
                 BusinessPartnerId = bp.Id,
                 DueTime = (int)dueTime,
-                SumDuration = (int)sumDuration,
-                SumOperations = (int)sumOperations,
-                ProductionOrders = (int)productionOrders,
                 CreationTime = (int)creationTime,
                 DueDateTime = dueTime.ToDateTime(),
                 Name = Articles.Single(predicate: x => x.Id == articleId).Name,
@@ -161,7 +155,7 @@ namespace Master40.DB.Data.Context
 
         }
 
-        public long GetEarliestStart(ResultContext kpiContext, Job simulationWorkschedule, SimulationType simulationType, int simulationId,  List<Job> schedules = null)
+        public long GetEarliestStart(ResultContext kpiContext, Job simulationWorkschedule, SimulationType simulationType, int simulationId, List<Job> schedules = null)
         {
             if (simulationType == SimulationType.Central)
             {
@@ -179,7 +173,7 @@ namespace Master40.DB.Data.Context
             var children = new List<Job>();
             children = schedules.Where(predicate: x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                                 .Where(predicate: a => a.ParentId.Equals(value: simulationWorkschedule.ProductionOrderId.ToString())).ToList();
-            
+
             if (!children.Any()) return simulationWorkschedule.Start;
             var startTimes = children.Select(selector: child => GetEarliestStart(kpiContext: kpiContext, simulationWorkschedule: child, simulationType: simulationType, simulationId: simulationId, schedules: schedules)).ToList();
             return startTimes.Min();
