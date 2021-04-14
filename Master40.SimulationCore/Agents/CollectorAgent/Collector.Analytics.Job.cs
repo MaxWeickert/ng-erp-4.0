@@ -138,10 +138,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             ThroughPut(finalCall);
             CallTotal(finalCall);
             CallAverageIdle(finalCall);
-            if (Collector.Config.GetOption<UsePredictedThroughput>().Value > 0)
+/*            if (Collector.Config.GetOption<UsePredictedThroughput>().Value > 0)
             {
                 GatherKpiForAI(finalCall);
-            }
+            }*/
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
@@ -151,15 +151,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
             //KPI gathering starts before settling start
-            if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
+            //if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
 
-            var allCapabilityIdle = Collector.Kpis.FindAll(k => k.KpiType == KpiType.CapabilityIdle && k.Time == Collector.Time);
+            //CapabilityIdle von Maschinengruppe
+
+/*            var allCapabilityIdle = Collector.Kpis.FindAll(k => k.KpiType == KpiType.CapabilityIdle && k.Time == Collector.Time);
             if (allCapabilityIdle != null)
             {
-                var capabilityIdle = allCapabilityIdle.Average(k => k.Value); //TODO: AVG!
+                var capabilityIdle = allCapabilityIdle.Average(k => k.Value);
                 var fCapabilityIdle = new FKpi.FKpi(Collector.Time, "CapabilityIdle", capabilityIdle);
                 Collector.SendKpi(fCapabilityIdle);
-            }
+            }*/
         }
 
         private void CallAverageIdle(bool finalCall)
