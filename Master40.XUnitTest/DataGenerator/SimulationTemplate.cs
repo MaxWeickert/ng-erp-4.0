@@ -34,8 +34,8 @@ namespace Master40.XUnitTest.DataGenerator
                         , 960   // max bucket size
                         , 10160    // throughput time
                         , 348345 + i * 14// Random seed
-                        , 0.02 // arrival rate
-                        , 10080*1 // simulation end
+                        , 0.0152 // arrival rate
+                        , 10080*3 // simulation end //10080 = 3 weeks
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
@@ -140,7 +140,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SettlingStart(value: 3360));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new SimulationEnd(value: simulationEnd));
             simConfig.ReplaceOption(new SaveToDB(value: true));
@@ -154,7 +154,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MinDeliveryTime(value: minDeliveryTime));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
-            simConfig.ReplaceOption(new UsePredictedThroughput(value: 1));
+            simConfig.ReplaceOption(new UsePredictedThroughput(value: 0));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
 
