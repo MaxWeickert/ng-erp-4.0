@@ -244,58 +244,61 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private void FillKpiList(T_CustomerOrder order)
         {
             //if (Agent.CurrentTime >= _timeConstraintQueueLength)
-            Kpis.Add(new SimulationKpis((float)order.CreationTime, orderId: (float)order.Id));
-            Kpis.First(k => k.OrderId == order.Id).CreationTime = order.CreationTime;
-            Kpis.First(k => k.OrderId == order.Id).SumDuration = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).Duration;
-            Kpis.First(k => k.OrderId == order.Id).SumOperations = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).OperationCount;
-            Kpis.First(k => k.OrderId == order.Id).ProductionOrders = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).ProductionOrderCount;
-            Kpis.First(k => k.OrderId == order.Id).ProductionOrders = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).ProductionOrderCount;
-
-            if (Kpis.First(k => k.OrderId == order.Id).Assembly == 0
-                && Kpis.First(k => k.OrderId == order.Id).Material == 0
-                && Kpis.First(k => k.OrderId == order.Id).OpenOrders == 0
-                && Kpis.First(k => k.OrderId == order.Id).NewOrders == 0
-                && Kpis.First(k => k.OrderId == order.Id).TotalWork == 0
-                && Kpis.First(k => k.OrderId == order.Id).TotalSetup == 0
-                && Agent.CurrentTime >= _timeConstraintQueueLength)
             {
-                Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
-                Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
-                Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.OpenOrders != 0).OpenOrders;
-                Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders != 0).NewOrders;
-                Kpis.First(k => k.OrderId == order.Id).TotalWork = Kpis.Last(k => k.TotalWork != 0).TotalWork;
-                Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
+                Kpis.Add(new SimulationKpis((float)order.CreationTime, orderId: (float)order.Id));
+                Kpis.First(k => k.OrderId == order.Id).CreationTime = order.CreationTime;
+                Kpis.First(k => k.OrderId == order.Id).SumDuration = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).Duration;
+                Kpis.First(k => k.OrderId == order.Id).SumOperations = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).OperationCount;
+                Kpis.First(k => k.OrderId == order.Id).ProductionOrders = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).ProductionOrderCount;
+
+                if (Kpis.First(k => k.OrderId == order.Id).Assembly == 0
+                    && Kpis.First(k => k.OrderId == order.Id).Material == 0
+                    && Kpis.First(k => k.OrderId == order.Id).OpenOrders == 0
+                    && Kpis.First(k => k.OrderId == order.Id).NewOrders == 0
+                    && Kpis.First(k => k.OrderId == order.Id).TotalWork == 0
+                    && Kpis.First(k => k.OrderId == order.Id).TotalSetup == 0
+                    && Agent.CurrentTime >= _timeConstraintQueueLength)
+                {
+                    Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
+                    Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
+                    Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.OpenOrders != 0).OpenOrders;
+                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders != 0).NewOrders;
+                    Kpis.First(k => k.OrderId == order.Id).TotalWork = Kpis.Last(k => k.TotalWork != 0).TotalWork;
+                    Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
+                }
             }
         }
 
         private void AddToKpi(FKpi.FKpi kpi)
         {
             //Write kpis into the Kpi List Object
-            switch (kpi.Name)
+            //if (Agent.CurrentTime >= _timeConstraintQueueLength*2)
             {
-                case "Assembly":
-                    Kpis.First(k => k.CreationTime >= kpi.Time).Assembly = (float)kpi.Value;
-                    break;
-                case "Material":
-                    Kpis.First(k => k.CreationTime >= kpi.Time).Material = (float)kpi.Value;
-                    break;
-                case "Open":
-                    Kpis.First(k => k.CreationTime >= kpi.Time).OpenOrders = (float)kpi.Value;
-                    break;
-                case "New":
-                    Kpis.First(k => k.CreationTime >= kpi.Time).NewOrders = (float)kpi.Value;
-                    break;
-                case "TotalWork":
-                    Kpis.First(k => k.CreationTime >= kpi.Time).TotalWork = (float)kpi.Value;
-                    break;
-                case "TotalSetup":
-                    Kpis.First(k => k.CreationTime >= kpi.Time).TotalSetup = (float)kpi.Value;
-                    break;
-                default:
-                    Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
-                    break;
+                switch (kpi.Name)
+                {
+                    case "Assembly":
+                        Kpis.First(k => k.CreationTime >= kpi.Time).Assembly = (float)kpi.Value;
+                        break;
+                    case "Material":
+                        Kpis.First(k => k.CreationTime >= kpi.Time).Material = (float)kpi.Value;
+                        break;
+                    case "Open":
+                        Kpis.First(k => k.CreationTime >= kpi.Time).OpenOrders = (float)kpi.Value;
+                        break;
+                    case "New":
+                        Kpis.First(k => k.CreationTime >= kpi.Time).NewOrders = (float)kpi.Value;
+                        break;
+                    case "TotalWork":
+                        Kpis.First(k => k.CreationTime >= kpi.Time).TotalWork = (float)kpi.Value;
+                        break;
+                    case "TotalSetup":
+                        Kpis.First(k => k.CreationTime >= kpi.Time).TotalSetup = (float)kpi.Value;
+                        break;
+                    default:
+                        Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
+                        break;
+                }
             }
-
             /*// New Kpi list item
             if (_lastTimestamp < kpi.Time)
             {

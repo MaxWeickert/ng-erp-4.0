@@ -1,4 +1,5 @@
 ﻿using Microsoft.ML.Data;
+using CsvHelper.Configuration.Attributes;
 
 namespace AiProvider.DataStuctures
 {
@@ -27,6 +28,7 @@ namespace AiProvider.DataStuctures
             CreationTime = creationTime;
             FinishingTime = finishingTime;
         }
+        [Ignore]
         public float Time { get; set; }
         public float Assembly { get; set; }
         public float Material { get; set; }
@@ -38,8 +40,11 @@ namespace AiProvider.DataStuctures
         public float SumOperations { get; set; }
         public float ProductionOrders { get; set; }
         public float CycleTime { get; set; }
+        [Ignore]
         public float OrderId { get; set; }
+        [Ignore]
         public float CreationTime { get; set; }
+        [Ignore]
         public float FinishingTime { get; set; }
     }
 }
