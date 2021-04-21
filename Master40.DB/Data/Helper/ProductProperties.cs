@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Master40.DB.Data.Helper
 {
-    public class ThroughputParameter
+    public class ProductProperties
     {
         public int ArticleId { get; set; }
         public int OperationCount { get; set; }

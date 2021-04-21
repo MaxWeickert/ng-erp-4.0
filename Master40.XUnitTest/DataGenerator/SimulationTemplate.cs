@@ -35,12 +35,12 @@ namespace Master40.XUnitTest.DataGenerator
                         , 10160    // throughput time
                         , 348345 + i * 14// Random seed
                         , 0.0152 // arrival rate
-                        , 10080*3 // simulation end //10080 = 3 weeks
+                        , 10080*5 // simulation end //10080 = 3 weeks
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
-                        , int.Parse(1.ToString() + approach.ToString().PadLeft(3, '0')
-                                                 + i.ToString().PadLeft(2, '0'))  //SimulationNumber
+                        , 1008
+                        //int.Parse(1.ToString() + approach.ToString().PadLeft(3, '0') + i.ToString().PadLeft(2, '0'))  //SimulationNumber
                     };
                 }
             }
@@ -154,7 +154,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MinDeliveryTime(value: minDeliveryTime));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
-            simConfig.ReplaceOption(new UsePredictedThroughput(value: 0));
+            simConfig.ReplaceOption(new UsePredictedThroughput(value: 1));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
 

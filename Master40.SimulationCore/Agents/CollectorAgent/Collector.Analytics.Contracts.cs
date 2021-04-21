@@ -86,7 +86,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                     , (int)orderDictionary[OrderKpi.OrderState.Total].GetValue());
             var timeliness = new[] { orderDictionary[OrderKpi.OrderState.Total].GetValue().ToString(), (finishedArticle.ProvidedAt - finishedArticle.DueTime).ToString()};
             Collector.messageHub.SendToClient(listener: "orderListener", msg: JsonConvert.SerializeObject(timeliness));
-
         }
 
         private void UpdateFeed(bool finalCall)

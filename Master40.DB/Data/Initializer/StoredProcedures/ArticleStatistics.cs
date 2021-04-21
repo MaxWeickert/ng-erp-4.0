@@ -79,10 +79,10 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 			return estimatedProductDelivery;
 		}
 
-		public static List<ThroughputParameter> GetProductProps(MasterDBContext dbContext)
+		public static List<ProductProperties> GetProductPropperties(MasterDBContext dbContext)
         {
 			var articleIds = dbContext.Articles.Include(x => x.ArticleType).Where(x => x.ArticleType.Name == "Product").Select(x => x.Id);
-			var productProperties = new List<ThroughputParameter>(); /// Todo Gewappte list
+			var productProperties = new List<ProductProperties>(); /// Todo Gewappte list
 			foreach (var articleId in articleIds)
 			{
 				var sql = string.Format("Execute ArticleCTE {0}", articleId);
@@ -95,7 +95,7 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 						while (reader.Read())
 						{
 							System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], reader[2]));
-							productProperties.Add(new ThroughputParameter() { ArticleId = articleId,
+							productProperties.Add(new ProductProperties() { ArticleId = articleId,
 																	Duration = int.Parse(reader[0].ToString())
 															, OperationCount = int.Parse(reader[1].ToString())
 														, ProductionOrderCount = int.Parse(reader[2].ToString()) });
