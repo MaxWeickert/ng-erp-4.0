@@ -177,7 +177,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 item.CycleTime = item.FinishingTime - item.CreationTime;
             }
 
-            CreateCsvWithKpiList();
+            CreateCsvOfKpiList();
 
             Agent.DebugMessage(msg: "End Sim");
             Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationMessage.SimulationState.Finished);
@@ -230,8 +230,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _estimatedThroughPuts.UpdateAll(predictedThroughput);
         }
 
-        private void CreateCsvWithKpiList()
+        private void CreateCsvOfKpiList()
         {
+            // remove List Items where KPIs are 0
+            Kpis.RemoveAll(k => k.Assembly == 0 && k.Material == 0);
+
             //Create a csv file for training
             var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/training.csv"));
 
