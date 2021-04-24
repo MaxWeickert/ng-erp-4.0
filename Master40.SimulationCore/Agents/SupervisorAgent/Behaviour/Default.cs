@@ -44,6 +44,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
+        private float _arrivalRate { get; set; }
+        private int _simulationNumber { get; set; }
         private OrderCounter _orderCounter { get; set; }
         private float _lastTimestamp { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
@@ -71,6 +73,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
+            _simulationNumber = configuration.GetOption<SimulationNumber>().Value;
+            _arrivalRate = (float)configuration.GetOption<OrderArrivalRate>().Value;
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
@@ -236,8 +240,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Kpis.RemoveAll(k => k.Assembly == 0 && k.Material == 0);
 
             //Create a csv file for training
-            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/training.csv"));
-
+            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/" + _simulationNumber + "_training_" + _arrivalRate + ".csv"));
             var streamWriter = new StreamWriter(filestring);
             var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
             csvWriter.WriteRecords(Kpis);
@@ -260,7 +263,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     && Kpis.First(k => k.OrderId == order.Id).NewOrders == 0
                     && Kpis.First(k => k.OrderId == order.Id).TotalWork == 0
                     && Kpis.First(k => k.OrderId == order.Id).TotalSetup == 0
-                    && Agent.CurrentTime >= _timeConstraintQueueLength)
+                    && Agent.CurrentTime >= _timeConstraintQueueLength
+                    && Kpis.Count > 0)
                 {
                     Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
                     Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
