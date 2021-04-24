@@ -23,10 +23,10 @@ namespace AiProvider.DataStuctures
             SumDuration = sumDuration;
             SumOperations = sumOperations;
             ProductionOrders = productionOrders;
-            CycleTime = cycleTime;
             OrderId = orderId;
             CreationTime = creationTime;
             FinishingTime = finishingTime;
+            CycleTime = cycleTime;
         }
         [Ignore]
         public float Time { get; set; }
@@ -39,12 +39,12 @@ namespace AiProvider.DataStuctures
         public float SumDuration { get; set; }
         public float SumOperations { get; set; }
         public float ProductionOrders { get; set; }
-        public float CycleTime { get; set; }
         [Ignore]
         public float OrderId { get; set; }
         [Ignore]
         public float CreationTime { get; set; }
         [Ignore]
         public float FinishingTime { get; set; }
+        public float CycleTime { get; set; }
     }
 }
