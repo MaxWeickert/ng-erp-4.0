@@ -104,6 +104,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             ProductProperties = ArticleStatistics.GetProductPropperties(dbProduction.DbContext);
+
+            ThroughputPredictor.LoadModel();
+
             return true;
         }
 
@@ -194,7 +197,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             //Fill Kpi List with Kpis and ProductProperties
             FillKpiList(order);
 
-            //if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 1) KickoffThroughputPrediction(Agent);
+            if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 1) KickoffThroughputPrediction(Agent);
 
             var eta = _estimatedThroughPuts.Get(name: order.Name);
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
