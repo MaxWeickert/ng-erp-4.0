@@ -111,7 +111,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             ProductProperties = ArticleStatistics.GetProductPropperties(dbProduction.DbContext);
 
-            ThroughputPredictor.LoadModel();
+            //ThroughputPredictor.LoadModel();
 
             return true;
         }
@@ -222,6 +222,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void SystemCheck()
         {
+            //Check capability workload
+            //endSimulationWorkloadTest();
+
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
             // TODO Loop Through all CustomerOrderParts
@@ -232,6 +235,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 CreateContractAgent(order);
                 _openOrders.RemoveAll(match: x => x.Id == order.Id);
             }
+
         }
 
         private void KickoffThroughputPrediction(string articleName, Agent agent)
@@ -241,7 +245,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             // Vorhersage: Case 1 is better because runtime
             // Real Time Prediction: Case 2 is needed
 
-            //NOTE: ThroughputPredictor should return prediction for order.ArticleId
             //CASE 1: Return LAST item of list to predict cycletime for actual order
             /*var valuesForPrediction = Kpis.Last(k => k.Assembly != 0 &&
                                                         k.Material != 0 &&
@@ -254,6 +257,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             //var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction, agent);
 
             // CASE 2: Return ALL filled list items
+            // For prediction just use the last item of the list in the predictor function
             var valuesForPrediction = Kpis.FindAll(k => k.Assembly != 0 &&
                                                         k.Material != 0 &&
                                                         k.OpenOrders != 0 &&
@@ -263,7 +267,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction, agent);
 
-            // For both options relevant          
+            // For both options right         
             _estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
             
         }
@@ -314,6 +318,18 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
                 }
             }
+        }
+
+        private void endSimulationWorkloadTest()
+        {
+            // Cancel simulation if the workload of the last three time steps is above 0.85
+
+            //if(last 5 items of list > 0.85)
+            //{
+            //    Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
+            //    Agent.DebugMessage(msg: $"Simulation will be stopped at {Agent.CurrentTime} because of high workload");
+            //    End();
+            //}
         }
 
         private void AddToKpi(FKpi.FKpi kpi)
