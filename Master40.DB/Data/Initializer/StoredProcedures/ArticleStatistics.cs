@@ -56,7 +56,6 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 				command.ExecuteNonQuery();
 			}
 		}
-		//!!TODO: Build an object an return all values in one function.
 		public static long DeliveryDateEstimator(int articleId, double factor, MasterDBContext dBContext)
         {
 			var sql = string.Format("Execute ArticleCTE {0}", articleId);
@@ -69,10 +68,10 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 				{
 					while (reader.Read())
 					{
-						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], reader[2]));
+						//System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], reader[2]));
 						// TODO Catch false informations
 						estimatedProductDelivery = (long)(System.Convert.ToInt64(reader[0]) * factor);
-						System.Diagnostics.Debug.WriteLine("Estimated Product Delivery{0}", estimatedProductDelivery);
+						//System.Diagnostics.Debug.WriteLine("Estimated Product Delivery {0}", estimatedProductDelivery);
 					}
 				}
 			}
@@ -94,11 +93,10 @@ namespace Master40.DB.Data.Initializer.StoredProcedures
 					{
 						while (reader.Read())
 						{
-							System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], reader[2]));
 							productProperties.Add(new ProductProperties() { ArticleId = articleId,
-																	Duration = int.Parse(reader[0].ToString())
-															, OperationCount = int.Parse(reader[1].ToString())
-														, ProductionOrderCount = int.Parse(reader[2].ToString()) });
+																	Duration = int.Parse(reader[0].ToString()),
+																	OperationCount = int.Parse(reader[1].ToString()),
+																	ProductionOrderCount = int.Parse(reader[2].ToString()) });
 						}
 					}
 				}

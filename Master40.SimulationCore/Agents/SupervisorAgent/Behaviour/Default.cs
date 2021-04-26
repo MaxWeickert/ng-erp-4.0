@@ -44,6 +44,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
+        private float _arrivalRate { get; set; }
+        private int _simulationNumber { get; set; }
         private OrderCounter _orderCounter { get; set; }
         private float _lastTimestamp { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
@@ -55,6 +57,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         private int _numberOfValuesForPrediction { get; set; }
         private int _timeConstraintQueueLength { get; set; }
+        private int _settlingStart { get; set; }
         private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
         private List<SimulationKpis> Kpis { get; set; } = new List<SimulationKpis>();
         private List<ProductProperties> ProductProperties { get; set; } = new List<ProductProperties>();
@@ -71,11 +74,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
+            _simulationNumber = configuration.GetOption<SimulationNumber>().Value;
+            _arrivalRate = (float)configuration.GetOption<OrderArrivalRate>().Value;
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
             _numberOfValuesForPrediction = configuration.GetOption<UsePredictedThroughput>().Value;
             _timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
+            _settlingStart = configuration.GetOption<SettlingStart>().Value;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
         }
         public override bool Action(object message)
@@ -180,7 +186,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 item.CycleTime = item.FinishingTime - item.CreationTime;
             }
 
-            CreateCsvWithKpiList();
+            CreateCsvOfKpiList();
 
             Agent.DebugMessage(msg: "End Sim");
             Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationMessage.SimulationState.Finished);
@@ -233,11 +239,19 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _estimatedThroughPuts.UpdateAll(predictedThroughput);
         }
 
-        private void CreateCsvWithKpiList()
+        private void CreateCsvOfKpiList()
         {
-            //Create a csv file for training
-            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/training.csv"));
+            // remove List Items where KPIs are 0
+            Kpis.RemoveAll(k => k.Assembly == 0 && k.Material == 0);
 
+            // remove list items where orders wasn't finished
+            Kpis.RemoveAll(k => k.CycleTime < 0);
+
+            // Remove Settling Kpis
+            Kpis.RemoveAll(k => k.CreationTime < _settlingStart);
+
+            //Create a csv file for training
+            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/" + _simulationNumber + "_training_" + _arrivalRate + ".csv"));
             var streamWriter = new StreamWriter(filestring);
             var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
             csvWriter.WriteRecords(Kpis);
@@ -260,7 +274,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     && Kpis.First(k => k.OrderId == order.Id).NewOrders == 0
                     && Kpis.First(k => k.OrderId == order.Id).TotalWork == 0
                     && Kpis.First(k => k.OrderId == order.Id).TotalSetup == 0
-                    && Agent.CurrentTime >= _timeConstraintQueueLength)
+                    && Agent.CurrentTime >= _timeConstraintQueueLength
+                    && Kpis.Count > 0)
                 {
                     Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
                     Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
@@ -276,6 +291,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         {
             //Write kpis into the Kpi List Object
             //if (Agent.CurrentTime >= _timeConstraintQueueLength*2)
+            //if (Kpis.Last(k => k.CreationTime >= kpi.Time).CreationTime == kpi.Time)
+            if (Kpis.Last().CreationTime >= kpi.Time)
             {
                 switch (kpi.Name)
                 {
