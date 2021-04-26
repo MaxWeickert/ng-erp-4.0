@@ -203,7 +203,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             //Fill Kpi List with Kpis and ProductProperties
             FillKpiList(order);
 
-            if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 1) KickoffThroughputPrediction(Agent);
+            //if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 1)
+            //{
+            //    KickoffThroughputPrediction(order.Name, Agent);
+            //}
 
             var eta = _estimatedThroughPuts.Get(name: order.Name);
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
@@ -231,12 +234,36 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             }
         }
 
-        private void KickoffThroughputPrediction(Agent agent)
+        private void KickoffThroughputPrediction(string articleName, Agent agent)
         {
-            //var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - _numberOfValuesForPrediction)).Take(_numberOfValuesForPrediction); //set number of values for prediction
-            var valuesForPrediction = Kpis.FindAll(k => k.Time <= _lastTimestamp); //all kpis for prediction, possibly bad for efficiency
+
+            // TODO @MW: Sollen wirklich alle Kpis übergeben werden oder nur die aktuellen des Produkts?
+
+            //NOTE: ThroughputPredictor should return prediction for order.ArticleId
+            //CASE 1: Return LAST item of list to predict cycletime for actual order
+            /*var valuesForPrediction = Kpis.Last(k => k.Assembly != 0 &&
+                                                        k.Material != 0 &&
+                                                        k.OpenOrders != 0 &&
+                                                        k.NewOrders != 0 &&
+                                                        k.TotalWork != 0 &&
+                                                        k.TotalSetup != 0);
+*/
+            //TODO: Change data type of input list item
+            //var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction, agent);
+
+            // Return ALL filled list items
+            var valuesForPrediction = Kpis.FindAll(k => k.Assembly != 0 &&
+                                                        k.Material != 0 &&
+                                                        k.OpenOrders != 0 &&
+                                                        k.NewOrders != 0 &&
+                                                        k.TotalWork != 0 &&
+                                                        k.TotalSetup != 0);
+
             var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction, agent);
-            _estimatedThroughPuts.UpdateAll(predictedThroughput);
+
+            // For both options relevant          
+            _estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
+            
         }
 
         private void CreateCsvOfKpiList()
@@ -262,7 +289,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         {
             //if (Agent.CurrentTime >= _timeConstraintQueueLength)
             {
-                Kpis.Add(new SimulationKpis((float)order.CreationTime, orderId: (float)order.Id));
+                Kpis.Add(new SimulationKpis(Agent.CurrentTime, orderId: (float)order.Id));
                 Kpis.First(k => k.OrderId == order.Id).CreationTime = order.CreationTime;
                 Kpis.First(k => k.OrderId == order.Id).SumDuration = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).Duration;
                 Kpis.First(k => k.OrderId == order.Id).SumOperations = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).OperationCount;
