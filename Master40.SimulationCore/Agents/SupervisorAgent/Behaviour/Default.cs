@@ -238,6 +238,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         {
 
             // TODO @MW: Sollen wirklich alle Kpis übergeben werden oder nur die aktuellen des Produkts?
+            // Vorhersage: Case 1 is better because runtime
+            // Real Time Prediction: Case 2 is needed
 
             //NOTE: ThroughputPredictor should return prediction for order.ArticleId
             //CASE 1: Return LAST item of list to predict cycletime for actual order
@@ -251,7 +253,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             //TODO: Change data type of input list item
             //var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction, agent);
 
-            // Return ALL filled list items
+            // CASE 2: Return ALL filled list items
             var valuesForPrediction = Kpis.FindAll(k => k.Assembly != 0 &&
                                                         k.Material != 0 &&
                                                         k.OpenOrders != 0 &&
