@@ -33,7 +33,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
         private List<float[]> predictedActualThroughputList = new List<float[]>();
 
-        public long PredictThroughput(List<SimulationKpis> valuesForPrediction, Agent agent)
+        public long PredictThroughput(SimulationKpis valuesForPrediction, Agent agent)
         {
             var predictedThroughput = PredictWithNeuralNetwork(valuesForPrediction, agent);
             /*            var kpisForPredict = getReshapedKpisForPrediction(valuesForPrediction);
@@ -64,53 +64,46 @@ namespace Master40.SimulationCore.Helper.AiProvider
             return predictedThroughput;
         }
 
-        private long PredictWithNeuralNetwork(List<SimulationKpis> valuesForPrediction, Agent agent)
+        private long PredictWithNeuralNetwork(SimulationKpis valuesForPrediction, Agent agent)
         {
             return 10160;
-            if (valuesForPrediction.Any())
+            NDarray array = np.array(new double[,,]
             {
-                NDarray array = np.array(new double[,,]
                 {
                     {
-                        {
-                            valuesForPrediction.Last().Assembly,
-                            valuesForPrediction.Last().Material,
-                            valuesForPrediction.Last().OpenOrders,
-                            valuesForPrediction.Last().NewOrders,
-                            valuesForPrediction.Last().TotalWork,
-                            valuesForPrediction.Last().TotalSetup,
-                            valuesForPrediction.Last().SumDuration,
-                            valuesForPrediction.Last().SumOperations,
-                            valuesForPrediction.Last().ProductionOrders,
-                            valuesForPrediction.Last().CycleTime
-                        }
+                        valuesForPrediction.Assembly,
+                        valuesForPrediction.Material,
+                        valuesForPrediction.OpenOrders,
+                        valuesForPrediction.NewOrders,
+                        valuesForPrediction.TotalWork,
+                        valuesForPrediction.TotalSetup,
+                        valuesForPrediction.SumDuration,
+                        valuesForPrediction.SumOperations,
+                        valuesForPrediction.ProductionOrders,
+                        valuesForPrediction.CycleTime
                     }
-                });
-                
-                var predictionData = model.Predict(array);
-
-                // Compare actual Value and predicted Value
-                if (predictedActualThroughputList.Count == 0)
-                {
-                    predictedActualThroughputList.Add(new float[]
-                        {valuesForPrediction.Last().Time, predictionData.GetData<float>()[0], 0});
                 }
-                else
-                {
-                    predictedActualThroughputList.Last()[2] =
-                        valuesForPrediction.Find(v => v.Time == predictedActualThroughputList.Last()[0] + 480)
-                            .CycleTime;
-                    //agent.DebugMessage(JsonConvert.SerializeObject(predictedActualThroughputList.Last()), CustomLogger.AIPREDICTIONS, LogLevel.Info);
-                    var newEntry = new float[] {valuesForPrediction.Last().Time, predictionData.GetData<float>()[0], 0};
-                    predictedActualThroughputList.Add(newEntry);
-                }
+            });
+            
+            var predictionData = model.Predict(array);
 
-                return (long) Math.Round(predictionData.GetData<float>()[0], 0);
-            }
-            else
-            {
-                return 1920;
-            }
+            // Compare actual Value and predicted Value
+            //if (predictedActualThroughputList.Count == 0)
+            //{
+            //    predictedActualThroughputList.Add(new float[]
+            //        {valuesForPrediction.Last().Time, predictionData.GetData<float>()[0], 0});
+            //}
+            //else
+            //{
+            //    predictedActualThroughputList.Last()[2] =
+            //        valuesForPrediction.Find(v => v.Time == predictedActualThroughputList.Last()[0] + 480)
+            //            .CycleTime;
+            //    //agent.DebugMessage(JsonConvert.SerializeObject(predictedActualThroughputList.Last()), CustomLogger.AIPREDICTIONS, LogLevel.Info);
+            //    var newEntry = new float[] {valuesForPrediction.Time, predictionData.GetData<float>()[0], 0};
+            //    predictedActualThroughputList.Add(newEntry);
+            //}
+
+            return (long) Math.Round(predictionData.GetData<float>()[0], 0);
         }
 
         private void trainNeuralNetwork()
