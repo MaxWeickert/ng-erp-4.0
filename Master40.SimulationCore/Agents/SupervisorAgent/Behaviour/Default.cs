@@ -57,6 +57,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         private int _numberOfValuesForPrediction { get; set; }
         private int _timeConstraintQueueLength { get; set; }
+        private int _settlingStart { get; set; }
         private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
         private List<SimulationKpis> Kpis { get; set; } = new List<SimulationKpis>();
         private List<ProductProperties> ProductProperties { get; set; } = new List<ProductProperties>();
@@ -80,6 +81,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
             _numberOfValuesForPrediction = configuration.GetOption<UsePredictedThroughput>().Value;
             _timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
+            _settlingStart = configuration.GetOption<SettlingStart>().Value;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
         }
         public override bool Action(object message)
@@ -239,6 +241,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             // remove List Items where KPIs are 0
             Kpis.RemoveAll(k => k.Assembly == 0 && k.Material == 0);
 
+            // remove list items where orders wasn't finished
+            Kpis.RemoveAll(k => k.CycleTime < 0);
+
+            // Remove Settling Kpis
+            Kpis.RemoveAll(k => k.CreationTime < _settlingStart);
+
             //Create a csv file for training
             var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/" + _simulationNumber + "_training_" + _arrivalRate + ".csv"));
             var streamWriter = new StreamWriter(filestring);
@@ -280,6 +288,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         {
             //Write kpis into the Kpi List Object
             //if (Agent.CurrentTime >= _timeConstraintQueueLength*2)
+            //if (Kpis.Last(k => k.CreationTime >= kpi.Time).CreationTime == kpi.Time)
+            if (Kpis.Last().CreationTime >= kpi.Time)
             {
                 switch (kpi.Name)
                 {
