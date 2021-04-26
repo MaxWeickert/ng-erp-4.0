@@ -111,7 +111,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             ProductProperties = ArticleStatistics.GetProductPropperties(dbProduction.DbContext);
 
-            ThroughputPredictor.LoadModel();
+            //ThroughputPredictor.LoadModel();
 
             return true;
         }
@@ -222,6 +222,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void SystemCheck()
         {
+            //Check capability workload
+            //endSimulationWorkloadTest();
+
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
             // TODO Loop Through all CustomerOrderParts
@@ -232,6 +235,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 CreateContractAgent(order);
                 _openOrders.RemoveAll(match: x => x.Id == order.Id);
             }
+
         }
 
         private void KickoffThroughputPrediction(string articleName, Agent agent)
@@ -241,17 +245,15 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             // Return ALL filled list items
             var completeKpis = Kpis.FindAll(k => k.Assembly != 0 &&
-                                                k.Material != 0 &&
-                                                k.OpenOrders != 0 &&
-                                                k.NewOrders != 0 &&
-                                                k.TotalWork != 0 &&
-                                                k.TotalSetup != 0);
+                                                 k.Material != 0 &&
+                                                 k.OpenOrders != 0 &&
+                                                 k.NewOrders != 0 &&
+                                                 k.TotalWork != 0 &&
+                                                 k.TotalSetup != 0);
 
             if (completeKpis.Any())
             {
                 var predictedThroughput = _throughputPredictor.PredictThroughput(completeKpis.Last(), agent);
-
-                // For both options relevant          
                 _estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
             }
         }
@@ -302,6 +304,18 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
                 }
             }
+        }
+
+        private void endSimulationWorkloadTest()
+        {
+            // Cancel simulation if the workload of the last three time steps is above 0.85
+
+            //if(last 5 items of list > 0.85)
+            //{
+            //    Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
+            //    Agent.DebugMessage(msg: $"Simulation will be stopped at {Agent.CurrentTime} because of high workload");
+            //    End();
+            //}
         }
 
         private void AddToKpi(FKpi.FKpi kpi)
