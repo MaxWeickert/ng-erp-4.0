@@ -86,8 +86,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
                         }
                     }
                 });
-
-                //model.LoadWeight(kerasModelPath + "\\model_checkpoint.h5");
+                
                 var predictionData = model.Predict(array);
 
                 // Compare actual Value and predicted Value
@@ -112,6 +111,11 @@ namespace Master40.SimulationCore.Helper.AiProvider
             {
                 return 1920;
             }
+        }
+
+        private void trainNeuralNetwork()
+        {
+
         }
 
         /*        private SimulationKpisReshaped getReshapedKpisForPrediction(List<SimulationKpis> kpiList)
