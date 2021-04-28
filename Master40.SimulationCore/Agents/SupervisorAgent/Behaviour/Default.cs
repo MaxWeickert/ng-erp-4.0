@@ -223,7 +223,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private void SystemCheck()
         {
             //Check capability workload
-            //endSimulationWorkloadTest();
+            //checkCapabilityWorkload();
 
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
@@ -306,14 +306,19 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             }
         }
 
-        private void endSimulationWorkloadTest()
+        private void checkCapabilityWorkload()
         {
-            // Cancel simulation if the workload of the last three time steps is above 0.85
+            // Create new List "CapabilityWorkload" with Time, CapabilityName, (KpiType), Value, TotalWorkload
+            // Get Time, CapabilityName, (KpiType), Value from Collector.Resource
+            // Calculate TotalWorkload = Sum values of last 3 list items for every resource
 
-            //if(last 5 items of list > 0.85)
+            // Cancel simulation if the workload of the last three time steps is above 0.85
+            //if(Search(TotalWorkload) > 0.85)
             //{
             //    Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
-            //    Agent.DebugMessage(msg: $"Simulation will be stopped at {Agent.CurrentTime} because of high workload");
+            //    Agent.DebugMessage(msg: $"Simulation will be stopped because of high workload at {Agent.CurrentTime} ");
+            //    Agent.DebugMessage(msg: $"Got high workload of Capability X with X!");
+            //    Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
             //    End();
             //}
         }
