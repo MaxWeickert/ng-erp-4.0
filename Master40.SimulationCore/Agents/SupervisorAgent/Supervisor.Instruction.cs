@@ -110,6 +110,18 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
                 }
                 public FKpi.FKpi GetObjectFromMessage { get => Message as FKpi.FKpi; }
             }
+
+            public class AddResourceKpi : SimulationMessage
+            {
+                public static AddResourceKpi Create(FResourceKpi.FResourceKpi message, IActorRef target)
+                {
+                    return new AddResourceKpi(message: message, target: target);
+                }
+                private AddResourceKpi(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FResourceKpi.FResourceKpi GetObjectFromMessage { get => Message as FResourceKpi.FResourceKpi; }
+            }
         }
     }
 }

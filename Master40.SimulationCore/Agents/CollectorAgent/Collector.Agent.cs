@@ -106,5 +106,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 , sender: ActorRefs.NoSender);
             }
         }
+
+        internal void SendResourceKpi(FResourceKpi.FResourceKpi resourceKpi)
+        {
+            this.actorPaths.SimulationContext.Ref.Tell(
+            message: SupervisorAgent.Supervisor.Instruction.AddResourceKpi.Create(
+                message: resourceKpi
+                , target: this.actorPaths.SystemAgent.Ref
+            )
+            , sender: ActorRefs.NoSender);
+        }
     }
 }
