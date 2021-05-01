@@ -39,12 +39,12 @@ namespace Master40.XUnitTest.DataGenerator
                         , 960   // max bucket size
                         , 10160    // throughput time
                         , 348345 + i * num// Random seed
-                        , 0.017 - (i*0.0005)  // arrival rate
+                        , 0.01 //- (i*0.0005)  // arrival rate
                         , 10080*4 // simulation end //10080 = 3 weeks
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
-                        , 10050 + i
+                        , 10058 + i
                         //int.Parse(1.ToString() + approach.ToString().PadLeft(3, '0') + i.ToString().PadLeft(2, '0'))  //SimulationNumber
                     };
                 }
@@ -159,6 +159,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
             simConfig.ReplaceOption(new UsePredictedThroughput(value: 1));
+            simConfig.ReplaceOption(new TestArrivalRate(value: false));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
 
