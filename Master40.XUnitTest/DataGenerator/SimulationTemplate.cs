@@ -23,23 +23,28 @@ namespace Master40.XUnitTest.DataGenerator
         // TODO: return complete config objects to avoid errors, and separate Data Generator / Simulation configurations
         public static IEnumerable<object[]> GetTestData()
         {
+            Random rnd = new Random();
+            int num = rnd.Next(50);
+
             for (int approach = 1; approach < 2; approach++)
             {
                 for (int i = 0; i < 1; i++)
                 {
+                    //Abbruchbedingung if returned simEnd = planned simEnd
+
                     yield return new object[]
                     {
                         approach // approach id (test data generator input parameter set id)
                         , 3000   // order Quantity
                         , 960   // max bucket size
                         , 10160    // throughput time
-                        , 348345 + i * 14// Random seed
-                        , 0.0152 // arrival rate
-                        , 10080*5 // simulation end //10080 = 3 weeks
+                        , 348345 + i * num// Random seed
+                        , 0.01 //- (i*0.0005)  // arrival rate
+                        , 10080*4 // simulation end //10080 = 3 weeks
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
-                        , 1008
+                        , 10058 + i
                         //int.Parse(1.ToString() + approach.ToString().PadLeft(3, '0') + i.ToString().PadLeft(2, '0'))  //SimulationNumber
                     };
                 }
@@ -68,7 +73,6 @@ namespace Master40.XUnitTest.DataGenerator
                 }
               }*/
         }
-
 
         /// <summary>
         /// To Run this test the Database must have been filled with Master data
@@ -155,6 +159,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
             simConfig.ReplaceOption(new UsePredictedThroughput(value: 1));
+            simConfig.ReplaceOption(new TestArrivalRate(value: false));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
 

@@ -137,6 +137,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             archiveOperationTask.AddRange(tempOperationTasks);
             archiveSetupTask.AddRange(tempSetupTasks);
 
+
+            if (Collector.Config.GetOption<TestArrivalRate>().Value == true)
+            {
+                GatherResourceCapKpis(finalCall);
+            }
+            
             if (Collector.Config.GetOption<UsePredictedThroughput>().Value > 0)
             {
                 GatherKpiForAI(finalCall);
@@ -151,10 +157,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
         private void GatherKpiForAI(bool finalCall)
         {
-            //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
-            //KPI gathering starts before settling start
-            //if (Collector.Time <= Collector.Config.GetOption<TimeConstraintQueueLength>().Value) return;
-
             var totalWork = Collector.Kpis.Find(k => k.Name == "TotalWork" && k.Time == Collector.Time);
             if (totalWork != null)
             {
@@ -167,6 +169,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             {
                 var fTotalSetup = new FKpi.FKpi(totalSetup.Time, totalSetup.Name, totalSetup.Value);
                 Collector.SendKpi(fTotalSetup);
+            }
+        }
+
+        private void GatherResourceCapKpis(bool finalCall)
+        {
+            foreach(var item in Collector.Kpis.FindAll(k => (k.KpiType == KpiType.ResourceUtilization || k.KpiType == KpiType.ResourceSetup)
+                                                            && k.Name != "TotalWork" && k.Name != "TotalSetup" && k.Name != "OEE"
+                                                            && k.Time == Collector.Time))
+            {
+                var resourceCap = new FResourceKpi.FResourceKpi(item.Time, item.Name, item.Value, (int)item.KpiType);
+                Collector.SendResourceKpi(resourceCap);
             }
         }
 

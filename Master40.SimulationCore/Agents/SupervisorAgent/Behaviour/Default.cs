@@ -33,6 +33,7 @@ using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instructi
 using System.IO;
 using System.Globalization;
 using CsvHelper;
+using CsvHelper.Configuration;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
@@ -45,6 +46,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
         private float _arrivalRate { get; set; }
+        private bool _testArrivalRate { get; set; }
         private int _simulationNumber { get; set; }
         private OrderCounter _orderCounter { get; set; }
         private float _lastTimestamp { get; set; } = 0;
@@ -62,6 +64,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
         private List<SimulationKpis> Kpis { get; set; } = new List<SimulationKpis>();
         private List<ProductProperties> ProductProperties { get; set; } = new List<ProductProperties>();
+        private List<ResourceCapabilityKpis> ResourceCapabilityKpis { get; set; } = new List<ResourceCapabilityKpis>();
 
         public  Default(string dbNameProduction
             , IMessageHub messageHub
@@ -84,6 +87,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _trainMLModel = configuration.GetOption<TrainMLModel>().Value;
             _timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
             _settlingStart = configuration.GetOption<SettlingStart>().Value;
+            _testArrivalRate = configuration.GetOption<TestArrivalRate>().Value;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
         }
         public override bool Action(object message)
@@ -97,6 +101,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 case RequestArticleBom instruction: RequestArticleBom(articleId: instruction.GetObjectFromMessage); break;
                 case OrderProvided instruction: OrderProvided(instruction: instruction); break;
                 case AddKpi instruction: AddToKpi(kpi: instruction.GetObjectFromMessage); break; //new
+                case AddResourceKpi instruction: AddToResourceKpi(resourceKpi: instruction.GetObjectFromMessage); break; //new for arrival Rate test
                 case SystemCheck instruction: SystemCheck(); break;
                 case EndSimulation instruction: End(); break;
                 case PopOrder p: PopOrder(); break;
@@ -211,7 +216,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 1)
             {
-                KickoffThroughputPrediction(order.Name, Agent);
+                //KickoffThroughputPrediction(order.Name, Agent);
             }
 
             var eta = _estimatedThroughPuts.Get(name: order.Name);
@@ -229,7 +234,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private void SystemCheck()
         {
             //Check capability workload
-            //checkCapabilityWorkload();
+            if (ResourceCapabilityKpis.Count > 0 && _testArrivalRate == true)
+            {
+                checkCapabilityWorkload();
+            }     
 
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
@@ -276,9 +284,24 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Kpis.RemoveAll(k => k.CreationTime < _settlingStart);
 
             //Create a csv file for training
-            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/" + _simulationNumber + "_training_" + _arrivalRate + ".csv"));
-            var streamWriter = new StreamWriter(filestring);
-            var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
+            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/train.csv"));
+            //var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/" + _simulationNumber + "_training_" + _arrivalRate + ".csv"));
+
+            var appendCsv = false;
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture);
+
+            if (File.Exists(filestring))
+            {
+                appendCsv = true;
+                config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    // Don't write the header again.
+                    HasHeaderRecord = false,
+                };
+            }
+
+            var streamWriter = new StreamWriter(filestring, appendCsv);
+            var csvWriter = new CsvWriter(streamWriter, config);
             csvWriter.WriteRecords(Kpis);
             streamWriter.Flush();
         }
@@ -302,10 +325,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     && Agent.CurrentTime >= _timeConstraintQueueLength
                     && Kpis.Count > 0)
                 {
+                    //TODO: Checkout if list already contains elements
                     Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
                     Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
-                    Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.OpenOrders != 0).OpenOrders;
-                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders != 0).NewOrders;
+                    Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.Assembly != 0).OpenOrders;
+                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.Assembly != 0).NewOrders; //search for assembly != bc NewOrders can sometimes be 0
                     Kpis.First(k => k.OrderId == order.Id).TotalWork = Kpis.Last(k => k.TotalWork != 0).TotalWork;
                     Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
                 }
@@ -314,27 +338,21 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void checkCapabilityWorkload()
         {
-            // Create new List "CapabilityWorkload" with Time, CapabilityName, (KpiType), Value, TotalWorkload
-            // Get Time, CapabilityName, (KpiType), Value from Collector.Resource
-            // Calculate TotalWorkload = Sum values of last 3 list items for every resource
-
-            // Cancel simulation if the workload of the last three time steps is above 0.85
-            //if(Search(TotalWorkload) > 0.85)
-            //{
-            //    Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
-            //    Agent.DebugMessage(msg: $"Simulation will be stopped because of high workload at {Agent.CurrentTime} ");
-            //    Agent.DebugMessage(msg: $"Got high workload of Capability X with X!");
-            //    Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
-            //    End();
-            //}
+            //Stop Simulation Run if one ResourceCapability's workload is over maxWorkload
+            var maxWorkload = 0.85;
+            if (ResourceCapabilityKpis.Max(rk => rk.value) > maxWorkload)
+            {
+                Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
+                Agent.DebugMessage(msg: $"Simulation will be stopped because of high workload at {Agent.CurrentTime} ");
+                Agent.DebugMessage(msg: $"Resource: { ResourceCapabilityKpis.First(rk => rk.value > maxWorkload).name } | Workload: { ResourceCapabilityKpis.First(rk => rk.value > maxWorkload).value } !");
+                Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
+                End();
+            }
         }
 
         private void AddToKpi(FKpi.FKpi kpi)
         {
-            //Write kpis into the Kpi List Object
-            //if (Agent.CurrentTime >= _timeConstraintQueueLength*2)
-            //if (Kpis.Last(k => k.CreationTime >= kpi.Time).CreationTime == kpi.Time)
-            if (Kpis.Last().CreationTime >= kpi.Time)
+            if (Kpis.Last().CreationTime >= kpi.Time && Kpis.Count > 0)
             {
                 switch (kpi.Name)
                 {
@@ -361,63 +379,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                         break;
                 }
             }
-            /*// New Kpi list item
-            if (_lastTimestamp < kpi.Time)
-            {
-                _newKpiTimestamp = _lastTimestamp;
-                switch (kpi.Name)
-                {
-                    case "Assembly":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, assembly: (float)kpi.Value));
-                        break;
-                    case "Material":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
-                        break;
-                    case "Open":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, openOrders: (float)kpi.Value));
-                        break;
-                    case "New":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, newOrders: (float)kpi.Value));
-                        break;
-                    case "TotalWork":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, totalWork: (float)kpi.Value));
-                        break;
-                    case "TotalSetup":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, totalSetup: (float)kpi.Value));
-                        break;
-                    default:
-                        Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
-                        break;
-                }
-                //_lastTimestamp = (float)kpi.Time;
-            }
-            else
-            {
-                switch (kpi.Name)
-                {
-                    case "Assembly":
-                        Kpis.First(k => k.CreationTime >= kpi.Time).Assembly = (float)kpi.Value;
-                        break;
-                    case "Material":
-                        Kpis.First(k => k.CreationTime >= kpi.Time).Material = (float)kpi.Value;
-                        break;
-                    case "Open":
-                        Kpis.First(k => k.CreationTime >= kpi.Time).OpenOrders = (float)kpi.Value;
-                        break;
-                    case "New":
-                        Kpis.First(k => k.CreationTime >= kpi.Time).NewOrders = (float)kpi.Value;
-                        break;
-                    case "TotalWork":
-                        Kpis.First(k => k.CreationTime >= kpi.Time).TotalWork = (float)kpi.Value;
-                        break;
-                    case "TotalSetup":
-                        Kpis.First(k => k.CreationTime >= kpi.Time).TotalSetup = (float)kpi.Value; ;
-                        break;
-                    default:
-                        Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
-                        break;
-                }
-            }*/
+        }
+
+        private void AddToResourceKpi(FResourceKpi.FResourceKpi resourceKpi)
+        {
+            ResourceCapabilityKpis.Add(new ResourceCapabilityKpis(resourceKpi.Time, resourceKpi.Name, resourceKpi.Value, resourceKpi.Type));
         }
     }
 }
