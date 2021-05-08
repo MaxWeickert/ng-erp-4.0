@@ -56,6 +56,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         private int _numberOfValuesForPrediction { get; set; }
+        private bool _trainMLModel { get; set; }
         private int _timeConstraintQueueLength { get; set; }
         private int _settlingStart { get; set; }
         private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
@@ -80,6 +81,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
             _numberOfValuesForPrediction = configuration.GetOption<UsePredictedThroughput>().Value;
+            _trainMLModel = configuration.GetOption<TrainMLModel>().Value;
             _timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
             _settlingStart = configuration.GetOption<SettlingStart>().Value;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
@@ -111,7 +113,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             ProductProperties = ArticleStatistics.GetProductPropperties(dbProduction.DbContext);
 
-            //ThroughputPredictor.LoadModel();
+            ThroughputPredictor.LoadModel();
 
             return true;
         }
@@ -187,6 +189,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             }
 
             CreateCsvOfKpiList();
+            if (_trainMLModel)
+            {
+                ThroughputPredictor.TrainNeuralNetwork(Kpis);
+            }
 
             Agent.DebugMessage(msg: "End Sim");
             Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationMessage.SimulationState.Finished);
