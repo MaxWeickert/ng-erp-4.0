@@ -118,7 +118,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             ProductProperties = ArticleStatistics.GetProductPropperties(dbProduction.DbContext);
 
-            ThroughputPredictor.LoadModel();
+            //ThroughputPredictor.LoadModel();
 
             return true;
         }

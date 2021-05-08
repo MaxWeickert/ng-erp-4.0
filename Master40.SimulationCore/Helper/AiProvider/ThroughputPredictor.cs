@@ -69,7 +69,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
         private long PredictWithNeuralNetwork(SimulationKpis valuesForPrediction, Agent agent)
         {
-            //return 10160;
+            return 10160;
             array = np.array(new double[,,]
             {
                 {
