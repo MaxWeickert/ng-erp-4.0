@@ -210,7 +210,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 1)
             {
-                KickoffThroughputPrediction(order.Name, Agent);
+                //KickoffThroughputPrediction(order.Name, Agent);
             }
 
             var eta = _estimatedThroughPuts.Get(name: order.Name);
@@ -293,6 +293,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     HasHeaderRecord = false,
                 };
             }
+
             var streamWriter = new StreamWriter(filestring, appendCsv);
             var csvWriter = new CsvWriter(streamWriter, config);
             csvWriter.WriteRecords(Kpis);
@@ -321,8 +322,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     //TODO: Checkout if list already contains elements
                     Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
                     Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
-                    Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.OpenOrders != 0).OpenOrders;
-                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders != 0).NewOrders;
+                    Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.Assembly != 0).OpenOrders;
+                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.Assembly != 0).NewOrders; //search for assembly != bc NewOrders can sometimes be 0
                     Kpis.First(k => k.OrderId == order.Id).TotalWork = Kpis.Last(k => k.TotalWork != 0).TotalWork;
                     Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
                 }
@@ -332,7 +333,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private void checkCapabilityWorkload()
         {
             //Stop Simulation Run if one ResourceCapability's workload is over maxWorkload
-            var maxWorkload = 0.35;
+            var maxWorkload = 0.85;
             if (ResourceCapabilityKpis.Max(rk => rk.value) > maxWorkload)
             {
                 Agent.DebugMessage(msg: "----------------------------------------------------------------------------");
