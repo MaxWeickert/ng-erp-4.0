@@ -7,7 +7,7 @@ namespace AiProvider.DataStuctures
     {
         public SimulationKpis(
             float time, float assembly = 0, float material = 0, 
-            float openOrders = 0, float newOrders = 0, 
+            float openOrders = -1, float newOrders = -1, 
             float totalWork = 0, float totalSetup = 0,
             float sumDuration = 0, float sumOperations = 0, float productionOrders = 0,
             float cycleTime = 0, 
