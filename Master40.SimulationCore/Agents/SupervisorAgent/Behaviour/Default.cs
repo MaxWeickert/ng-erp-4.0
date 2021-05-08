@@ -312,8 +312,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
                 if (Kpis.First(k => k.OrderId == order.Id).Assembly == 0
                     && Kpis.First(k => k.OrderId == order.Id).Material == 0
-                    && Kpis.First(k => k.OrderId == order.Id).OpenOrders == 0
-                    && Kpis.First(k => k.OrderId == order.Id).NewOrders == 0
+                    && Kpis.First(k => k.OrderId == order.Id).OpenOrders == -1
+                    && Kpis.First(k => k.OrderId == order.Id).NewOrders == -1
                     && Kpis.First(k => k.OrderId == order.Id).TotalWork == 0
                     && Kpis.First(k => k.OrderId == order.Id).TotalSetup == 0
                     && Agent.CurrentTime >= _timeConstraintQueueLength
@@ -322,8 +322,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     //TODO: Checkout if list already contains elements
                     Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
                     Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
-                    Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.Assembly != 0).OpenOrders;
-                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.Assembly != 0).NewOrders; //search for assembly != bc NewOrders can sometimes be 0
+                    Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.OpenOrders != -1).OpenOrders;
+                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders != -1).NewOrders; //search for assembly != bc NewOrders can sometimes be 0
                     Kpis.First(k => k.OrderId == order.Id).TotalWork = Kpis.Last(k => k.TotalWork != 0).TotalWork;
                     Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
                 }
