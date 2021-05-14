@@ -10,7 +10,7 @@ namespace AiProvider.DataStuctures
             float openOrders = -1, float newOrders = -1, 
             float totalWork = 0, float totalSetup = 0,
             float sumDuration = 0, float sumOperations = 0, float productionOrders = 0,
-            float cycleTime = 0, float predCycleTime = 0, 
+            float cycleTime = 0, 
             float orderId = 0, float creationTime = 0, float finishingTime = 0)
         {
             Time = time;
@@ -27,7 +27,6 @@ namespace AiProvider.DataStuctures
             CreationTime = creationTime;
             FinishingTime = finishingTime;
             CycleTime = cycleTime;
-            PredCycleTime = predCycleTime;
         }
         [Ignore]
         public float Time { get; set; }
@@ -46,8 +45,6 @@ namespace AiProvider.DataStuctures
         public float CreationTime { get; set; }
         [Ignore]
         public float FinishingTime { get; set; }
-        [Ignore]
-        public float PredCycleTime { get; set; }
         public float CycleTime { get; set; }
     }
 }

@@ -5,18 +5,26 @@ namespace AiProvider.DataStuctures
 {
     public class SimulationKpisReshaped
     {
-        public float Assembly { get; set; }
-
-        public float Material { get; set; }
-
-        public float OpenOrders { get; set; }
-
-        public float NewOrders { get; set; }
-        public float TotalWork { get; set; }
-        public float TotalSetup { get; set; }
-        public float SumDuration { get; set; }
-        public float SumOperation { get; set; }
-        public float ProductionOrders { get; set; }
-        public float CycleTime { get; set; }
+        public float Lateness_t2 { get; set; }
+        public float Assembly_t2 { get; set; }
+        public float Total_t2 { get; set; }
+        public float CycleTime_t2 { get; set; }
+        public float Consumab_t2 { get; set; }
+        public float Material_t2 { get; set; }
+        public float InDueTotal_t2 { get; set; }
+        public float Lateness_t1 { get; set; }
+        public float Assembly_t1 { get; set; }
+        public float Total_t1 { get; set; }
+        public float CycleTime_t1 { get; set; }
+        public float Consumab_t1 { get; set; }
+        public float Material_t1 { get; set; }
+        public float InDueTotal_t1 { get; set; }
+        public float Lateness_t0 { get; set; }
+        public float Assembly_t0 { get; set; }
+        public float Total_t0 { get; set; }
+        public float Consumab_t0 { get; set; }
+        public float Material_t0 { get; set; }
+        public float InDueTotal_t0 { get; set; }
+        public float CycleTime_t0 { get; set; }
     }
 }
