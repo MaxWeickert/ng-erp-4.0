@@ -25,7 +25,7 @@ namespace Master40.XUnitTest.DataGenerator
         {
             for (int approach = 1; approach < 2; approach++)
             {
-                for (int i = 0; i < 30; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     //Abbruchbedingung if returned simEnd = planned simEnd
 
@@ -37,11 +37,11 @@ namespace Master40.XUnitTest.DataGenerator
                         , 10160    // throughput time
                         , 348345 + i// Random seed
                         , 0.004 //- (i*0.0005)  // arrival rate
-                        , 10080*8 // simulation end //10080 = 3 weeks
+                        , 10080*6 // simulation end //10080 = 3 weeks
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
-                        , 70088 + i
+                        , 20009 + i
                         //int.Parse(1.ToString() + approach.ToString().PadLeft(3, '0') + i.ToString().PadLeft(2, '0'))  //SimulationNumber
                     };
                 }
@@ -144,7 +144,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new SettlingStart(value: 3360));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new SimulationEnd(value: simulationEnd));
-            simConfig.ReplaceOption(new SaveToDB(value: true));
+            simConfig.ReplaceOption(new SaveToDB(value: false));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simulationNumber)); 
             //simConfig.ReplaceOption(new SimulationNumber(value: dataGenSim.Id));
