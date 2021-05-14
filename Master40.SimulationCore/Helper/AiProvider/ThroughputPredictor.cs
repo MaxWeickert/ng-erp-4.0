@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Keras.Models;
 using Master40.SimulationCore.Agents;
 using Numpy;
@@ -23,7 +24,9 @@ namespace Master40.SimulationCore.Helper.AiProvider
             "Master40.SimulationCore\\Helper\\AiProvider\\MLModelNN");
 
         private static BaseModel model;
-
+        private static readonly double[] MEAN = { 8.49957229e+01, 7.58211654e+08, 3.51591966e+01, 3.95126518e+00, 8.80759900e+00, 1.03141433e+01, 2.20348746e+02, 2.18379099e+01, 4.36758198e+00, 4.44014501e+03 };
+        private static readonly double[] STD = {1.78602711e+01, 1.58227593e+08, 1.61621817e+01, 1.92785362e+00, 1.01701540e+00, 8.50091488e-01, 8.72457286e+01, 8.70529350e+00, 1.74105870e+00, 2.18632701e+03};
+        private NDarray array;
         public static void LoadModel()
         {
             model = Sequential.LoadModel(kerasModelPath);
@@ -67,7 +70,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
         private long PredictWithNeuralNetwork(SimulationKpis valuesForPrediction, Agent agent)
         {
             return 10160;
-            NDarray array = np.array(new double[,,]
+            array = np.array(new double[,,]
             {
                 {
                     {
@@ -79,13 +82,12 @@ namespace Master40.SimulationCore.Helper.AiProvider
                         valuesForPrediction.TotalSetup,
                         valuesForPrediction.SumDuration,
                         valuesForPrediction.SumOperations,
-                        valuesForPrediction.ProductionOrders,
-                        valuesForPrediction.CycleTime
+                        valuesForPrediction.ProductionOrders
                     }
                 }
             });
-            
-            var predictionData = model.Predict(array);
+
+            var normalizedArray = (array - MEAN[..^1])/STD[..^1];
 
             // Compare actual Value and predicted Value
             //if (predictedActualThroughputList.Count == 0)
@@ -102,13 +104,59 @@ namespace Master40.SimulationCore.Helper.AiProvider
             //    var newEntry = new float[] {valuesForPrediction.Time, predictionData.GetData<float>()[0], 0};
             //    predictedActualThroughputList.Add(newEntry);
             //}
+            double denormalizedThroughput;
+            try
+            {
+                var predictionData = model.PredictOnBatch(normalizedArray);
+                var predictedThroughput = predictionData.GetData<float>()[0];
+                denormalizedThroughput = predictedThroughput * STD[9] + MEAN[9];
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("{0} Exception caught.", e);
+                denormalizedThroughput = 10160;
+            }
 
-            return (long) Math.Round(predictionData.GetData<float>()[0], 0);
+            return (long)Math.Round(denormalizedThroughput, 0);
         }
 
-        private void trainNeuralNetwork()
+        public static void TrainNeuralNetwork(List<SimulationKpis> valuesForTraining)
         {
+            NDarray xArray = np.array(new double[,] { });
+            NDarray yArray = np.array(new double[,] { });
+            valuesForTraining.ForEach(v =>
+            {
+                np.append(xArray, new double[,]{{
+                    v.Assembly,
+                    v.Material,
+                    v.OpenOrders,
+                    v.NewOrders,
+                    v.TotalWork,
+                    v.TotalSetup,
+                    v.SumDuration,
+                    v.SumOperations,
+                    v.ProductionOrders
+                }});
+        //np.append(xArray, np.array(new double[,] {
+                //{
+                //    v.Assembly,
+                //    v.Material,
+                //    v.OpenOrders,
+                //    v.NewOrders,
+                //    v.TotalWork,
+                //    v.TotalSetup,
+                //    v.SumDuration,
+                //    v.SumOperations,
+                //    v.ProductionOrders
+                //}}));
+                //np.append(yArray, new double[,]{{v.CycleTime}});
+            });
 
+            NDarray normalizedX = (xArray - MEAN) / STD;
+            NDarray normalizedY = (yArray - MEAN[9]) / STD[9];
+
+            model.Fit(normalizedX, normalizedY, epochs: 20, verbose: 1);
+            model.Save(kerasModelPath);
         }
 
         /*        private SimulationKpisReshaped getReshapedKpisForPrediction(List<SimulationKpis> kpiList)

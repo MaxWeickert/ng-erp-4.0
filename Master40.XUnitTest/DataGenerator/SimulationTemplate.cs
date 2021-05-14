@@ -25,7 +25,7 @@ namespace Master40.XUnitTest.DataGenerator
         {
             for (int approach = 1; approach < 2; approach++)
             {
-                for (int i = 0; i < 25; i++)
+                for (int i = 0; i < 30; i++)
                 {
                     //Abbruchbedingung if returned simEnd = planned simEnd
 
@@ -156,6 +156,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
             simConfig.ReplaceOption(new UsePredictedThroughput(value: 1));
+            simConfig.ReplaceOption(new TrainMLModel(value: false));
             simConfig.ReplaceOption(new TestArrivalRate(value: false));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
