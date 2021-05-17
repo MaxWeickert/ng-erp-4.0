@@ -40,7 +40,7 @@ namespace Master40.MachineLearning
                 ProductionOrders = (float)-0.792846,
                 CycleTime = 0
 
-                            Assembly = (float)18.279465,
+/*                            Assembly = (float)18.279465,
                 Material = (float)129014860,
                 OpenOrders = 10,
                 NewOrders = 1,
@@ -49,7 +49,7 @@ namespace Master40.MachineLearning
                 SumDuration = 147,
                 SumOperation = 15,
                 ProductionOrders = 3,
-                CycleTime = 0
+                CycleTime = 0*/
             };
 
             //PredictCycleTime(newKpi);
