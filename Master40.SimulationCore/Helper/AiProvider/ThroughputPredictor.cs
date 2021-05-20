@@ -24,12 +24,12 @@ namespace Master40.SimulationCore.Helper.AiProvider
             "Master40.SimulationCore\\Helper\\AiProvider\\MLModelNN");
 
         private static BaseModel model;
-        private static readonly double[] MEAN = { 8.49957229e+01, 7.58211654e+08, 3.51591966e+01, 3.95126518e+00, 8.80759900e+00, 1.03141433e+01, 2.20348746e+02, 2.18379099e+01, 4.36758198e+00, 4.44014501e+03 };
-        private static readonly double[] STD = {1.78602711e+01, 1.58227593e+08, 1.61621817e+01, 1.92785362e+00, 1.01701540e+00, 8.50091488e-01, 8.72457286e+01, 8.70529350e+00, 1.74105870e+00, 2.18632701e+03};
+        private static readonly double[] MEAN = { 8.38349267e+01, 7.14052754e+08, 5.58996266e+00, 9.59101222e+00, 2.21157340e+02, 2.19141673e+01, 4.38283347e+00, 3.19661680e+03 };
+        private static readonly double[] STD = { 2.11527778e+01, 1.80308080e+08, 2.40437363e+00, 2.29533925e+00, 8.77253571e+01, 8.74016707e+00, 1.74803341e+00, 1.65355304e+03 };
         private NDarray array;
         public static void LoadModel()
         {
-            model = Sequential.LoadModel(kerasModelPath);
+            model = BaseModel.LoadModel(kerasModelPath, compile: true);
             model.LoadWeight(kerasModelPath + "\\simpleModelCheckpoint.h5");
         }
 
@@ -69,15 +69,15 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
         private long PredictWithNeuralNetwork(SimulationKpis valuesForPrediction, Agent agent)
         {
-            return 10160;
+            //return 10160;
             array = np.array(new double[,,]
             {
                 {
                     {
                         valuesForPrediction.Assembly,
                         valuesForPrediction.Material,
-                        valuesForPrediction.OpenOrders,
-                        valuesForPrediction.NewOrders,
+                        //valuesForPrediction.OpenOrders,
+                        //valuesForPrediction.NewOrders,
                         valuesForPrediction.TotalWork,
                         valuesForPrediction.TotalSetup,
                         valuesForPrediction.SumDuration,
@@ -104,12 +104,18 @@ namespace Master40.SimulationCore.Helper.AiProvider
             //    var newEntry = new float[] {valuesForPrediction.Time, predictionData.GetData<float>()[0], 0};
             //    predictedActualThroughputList.Add(newEntry);
             //}
+            
+
+            //var predictionData = model.PredictOnBatch(normalizedArray);
+            //var predictedThroughput = predictionData.GetData<float>()[0];
+            //var denormalizedThroughput = predictedThroughput * STD[^1] + MEAN[^1];
+
             double denormalizedThroughput;
             try
             {
                 var predictionData = model.PredictOnBatch(normalizedArray);
                 var predictedThroughput = predictionData.GetData<float>()[0];
-                denormalizedThroughput = predictedThroughput * STD[9] + MEAN[9];
+                denormalizedThroughput = predictedThroughput * STD[^1] + MEAN[^1];
             }
             catch(Exception e)
             {
@@ -153,7 +159,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
             });
 
             NDarray normalizedX = (xArray - MEAN) / STD;
-            NDarray normalizedY = (yArray - MEAN[9]) / STD[9];
+            NDarray normalizedY = (yArray - MEAN.Last()) / STD.Last();
 
             model.Fit(normalizedX, normalizedY, epochs: 20, verbose: 1);
             model.Save(kerasModelPath);
