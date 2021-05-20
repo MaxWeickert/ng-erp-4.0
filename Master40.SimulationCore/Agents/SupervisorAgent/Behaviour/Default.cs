@@ -214,7 +214,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             //Fill Kpi List with Kpis and ProductProperties
             FillKpiList(order);
 
-            if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 1)
+            if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 10)
             {
                 //KickoffThroughputPrediction(order.Name, Agent);
             }
@@ -260,14 +260,15 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             // Return ALL filled list items
             var completeKpis = Kpis.FindAll(k => k.Assembly != 0 &&
                                                  k.Material != 0 &&
-                                                 k.OpenOrders != 0 &&
-                                                 k.NewOrders != 0 &&
+                                                 k.OpenOrders != -1 &&
+                                                 k.NewOrders != -1 &&
                                                  k.TotalWork != 0 &&
                                                  k.TotalSetup != 0);
 
             if (completeKpis.Any())
             {
                 var predictedThroughput = _throughputPredictor.PredictThroughput(completeKpis.Last(), agent);
+                Kpis.First(k => k.OrderId == _throughputPredictor.predictedActualThroughputList.Last()[0]).PredCycleTime = _throughputPredictor.predictedActualThroughputList.Last()[1];
                 _estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
             }
         }

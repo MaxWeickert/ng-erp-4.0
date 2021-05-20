@@ -1,7 +1,7 @@
 ﻿using Microsoft.ML.Data;
 using CsvHelper.Configuration.Attributes;
 
-namespace AiProvider.DataStuctures
+namespace Master40.MachineLearning.DataStuctures
 {
     public class SimulationKpis
     {
