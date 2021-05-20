@@ -5,7 +5,7 @@ namespace Master40.MachineLearning.DataStuctures
 {
     public class CycleTimePrediction
     {
-        [ColumnName("Score")] public float CycleTime;
+        [VectorType(2)] public float CycleTime;
 
         //public static explicit operator long(CycleTimePrediction v)
         //{

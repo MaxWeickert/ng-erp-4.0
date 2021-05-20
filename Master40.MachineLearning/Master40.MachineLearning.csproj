@@ -18,12 +18,14 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.0.2" />
     <PackageReference Include="Microsoft.ML" Version="1.5.5" />
+    <PackageReference Include="Microsoft.ML.FastTree" Version="1.5.5" />
     <PackageReference Include="Microsoft.ML.TensorFlow" Version="1.5.5" />
     <PackageReference Include="Microsoft.ML.TensorFlow.Redist" Version="0.14.0" />
     <PackageReference Include="NumSharp" Version="0.30.0" />
     <PackageReference Include="Pandas.NET" Version="0.1.0" />
     <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.4.1" />
     <PackageReference Include="SciSharp.TensorFlow.Redist-Windows-GPU" Version="2.4.0" />
+    <PackageReference Include="TensorFlow.Keras" Version="0.5.1" />
     <PackageReference Include="TensorFlow.NET" Version="0.40.1" />
   </ItemGroup>
 
