@@ -1,6 +1,4 @@
-﻿using Microsoft.ML.Data;
-
-namespace Master40.MachineLearning.DataStuctures
+﻿namespace Master40.MachineLearning.DataStuctures
 {
     public class SimulationKpisReshaped
     {
@@ -11,7 +9,7 @@ namespace Master40.MachineLearning.DataStuctures
         public float TotalWork { get; set; }
         public float TotalSetup { get; set; }
         public float SumDuration { get; set; }
-        public float SumOperation { get; set; }
+        public float SumOperations { get; set; }
         public float ProductionOrders { get; set; }
         public float CycleTime { get; set; }
     }

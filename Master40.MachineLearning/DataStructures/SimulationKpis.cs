@@ -1,5 +1,4 @@
-﻿using Microsoft.ML.Data;
-using CsvHelper.Configuration.Attributes;
+﻿using CsvHelper.Configuration.Attributes;
 
 namespace Master40.MachineLearning.DataStuctures
 {
