@@ -9,20 +9,25 @@
     <StartupObject />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AkkaSim" Version="0.6.0" />
-    <PackageReference Include="CsvHelper" Version="26.1.0" />
+    <PackageReference Include="CsvHelper" Version="27.0.2" />
     <PackageReference Include="Keras.NET" Version="3.8.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.8.0" />
     <PackageReference Include="NumSharp" Version="0.30.0" />
     <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.1.0" />
     <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.1.0" />
-    <PackageReference Include="Microsoft.ML" Version="1.5.4" />
-    <PackageReference Include="Microsoft.ML.FastTree" Version="1.5.4" />
-    <PackageReference Include="Microsoft.ML.Mkl.Components" Version="1.5.4" />
+    <PackageReference Include="Microsoft.ML" Version="1.5.5" />
+    <PackageReference Include="Microsoft.ML.FastTree" Version="1.5.5" />
+    <PackageReference Include="Microsoft.ML.Mkl.Components" Version="1.5.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Master40.MachineLearning\Master40.MachineLearning.csproj" />
     <ProjectReference Include="..\Master40.PiWebApi\Master40.PiWebApi.csproj" />
     <ProjectReference Include="..\Master40.SimulationImmutables\Master40.SimulationImmutables.fsproj" />
     <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />

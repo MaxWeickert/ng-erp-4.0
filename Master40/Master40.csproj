@@ -6,7 +6,6 @@
     <Configurations>Debug;Release;Azure</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-
   </PropertyGroup>
 
   <PropertyGroup>
