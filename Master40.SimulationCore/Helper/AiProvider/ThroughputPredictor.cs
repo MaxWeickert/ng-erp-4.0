@@ -6,9 +6,9 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Keras.Models;
+//using Keras.Models;
 using Master40.SimulationCore.Agents;
-using Numpy;
+//using Numpy;
 using Newtonsoft.Json;
 
 namespace Master40.SimulationCore.Helper.AiProvider
@@ -24,9 +24,9 @@ namespace Master40.SimulationCore.Helper.AiProvider
         //private static string kerasModelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("Master40.XUnitTest\\bin\\Debug\\net5.0",
         //    "Master40.SimulationCore\\Helper\\AiProvider\\MLModelNN");
 
-        private static BaseModel model;
+        //private static BaseModel model;
 
-        public static void LoadModel()
+        /*public static void LoadModel()
         {
             model = Sequential.LoadModel(kerasModelPath);
             model.LoadWeight(kerasModelPath + "\\simpleModelCheckpoint.h5");
@@ -75,7 +75,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
         }*/
 
-        private long PredictWithNeuralNetwork(SimulationKpis valuesForPrediction, Agent agent)
+/*        private long PredictWithNeuralNetwork(SimulationKpis valuesForPrediction, Agent agent)
         {
             return 10160;
             array = np.array(new double[,,]
@@ -97,21 +97,6 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
             var normalizedArray = (array - MEAN[..^1])/STD[..^1];
 
-            // Compare actual Value and predicted Value
-            //if (predictedActualThroughputList.Count == 0)
-            //{
-            //    predictedActualThroughputList.Add(new float[]
-            //        {valuesForPrediction.Last().Time, predictionData.GetData<float>()[0], 0});
-            //}
-            //else
-            //{
-            //    predictedActualThroughputList.Last()[2] =
-            //        valuesForPrediction.Find(v => v.Time == predictedActualThroughputList.Last()[0] + 480)
-            //            .CycleTime;
-            //    //agent.DebugMessage(JsonConvert.SerializeObject(predictedActualThroughputList.Last()), CustomLogger.AIPREDICTIONS, LogLevel.Info);
-            //    var newEntry = new float[] {valuesForPrediction.Time, predictionData.GetData<float>()[0], 0};
-            //    predictedActualThroughputList.Add(newEntry);
-            //}
             double denormalizedThroughput;
             try
             {
@@ -165,9 +150,9 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
             model.Fit(normalizedX, normalizedY, epochs: 20, verbose: 1);
             model.Save(kerasModelPath);
-        }
+        }*/
 
-        private SimulationKpisReshaped getReshapedKpisForPrediction(SimulationKpis kpiList)
+            private SimulationKpisReshaped getReshapedKpisForPrediction(SimulationKpis kpiList)
         {
             var newKpi = new SimulationKpisReshaped
             {
