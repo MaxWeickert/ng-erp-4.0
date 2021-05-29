@@ -58,6 +58,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         private int _numberOfValuesForPrediction { get; set; }
+        private int _throughputPredictionAlgorithm { get; set; }
         private bool _trainMLModel { get; set; }
         private int _timeConstraintQueueLength { get; set; }
         private int _settlingStart { get; set; }
@@ -84,6 +85,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
             _numberOfValuesForPrediction = configuration.GetOption<UsePredictedThroughput>().Value;
+            _throughputPredictionAlgorithm = configuration.GetOption<ThroughputPredictionAlgorithm>().Value;
             _trainMLModel = configuration.GetOption<TrainMLModel>().Value;
             _timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
             _settlingStart = configuration.GetOption<SettlingStart>().Value;
@@ -261,7 +263,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             if (completeKpis.Any())
             {
-                var predictedThroughput = _cycleTimePredictor.PredictCycleTime(completeKpis.Last());
+                var predictedThroughput = _cycleTimePredictor.PredictCycleTime(completeKpis.Last(), _throughputPredictionAlgorithm);
+                //Write the predicted value into Kpis list
                 Kpis.First(k => k.OrderId == _cycleTimePredictor.predictedActualThroughputList.Last()[0]).PredCycleTime = _cycleTimePredictor.predictedActualThroughputList.Last()[1];
                 _estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
             }
@@ -299,6 +302,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             var csvWriter = new CsvWriter(streamWriter, config);
             csvWriter.WriteRecords(Kpis);
             streamWriter.Flush();
+
+
+
         }
 
         private void FillKpiList(T_CustomerOrder order)

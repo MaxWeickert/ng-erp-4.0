@@ -45,7 +45,6 @@ namespace Master40.MachineLearning.DataStuctures
         public float CreationTime { get; set; }
         [Ignore]
         public float FinishingTime { get; set; }
-        [Ignore]
         public float PredCycleTime { get; set; }
         public float CycleTime { get; set; }
     }
