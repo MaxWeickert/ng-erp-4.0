@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <StartupObject>Master40.MachineLearning.Program</StartupObject>
+    <StartupObject></StartupObject>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -18,19 +18,11 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.0.2" />
     <PackageReference Include="Microsoft.ML" Version="1.5.5" />
+    <PackageReference Include="Microsoft.ML.AutoML" Version="0.17.5" />
     <PackageReference Include="Microsoft.ML.FastTree" Version="1.5.5" />
-    <PackageReference Include="Microsoft.ML.TensorFlow" Version="1.5.5" />
-    <PackageReference Include="Microsoft.ML.TensorFlow.Redist" Version="0.14.0" />
-    <PackageReference Include="NumSharp" Version="0.30.0" />
-    <PackageReference Include="Pandas.NET" Version="0.1.0" />
-    <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.4.1" />
-    <PackageReference Include="SciSharp.TensorFlow.Redist-Windows-GPU" Version="2.4.0" />
-    <PackageReference Include="TensorFlow.Keras" Version="0.5.1" />
-    <PackageReference Include="TensorFlow.NET" Version="0.40.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
+    <PackageReference Include="Microsoft.ML.LightGbm" Version="1.5.5" />
+    <PackageReference Include="RestSharp" Version="106.11.8-alpha.0.2" />
+    <PackageReference Include="RestSharp.Newtonsoft.Json" Version="1.5.1" />
   </ItemGroup>
 
 </Project>

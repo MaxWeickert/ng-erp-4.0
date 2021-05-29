@@ -1,5 +1,4 @@
-﻿using Microsoft.ML.Data;
-using CsvHelper.Configuration.Attributes;
+﻿using CsvHelper.Configuration.Attributes;
 
 namespace Master40.MachineLearning.DataStuctures
 {
@@ -46,7 +45,6 @@ namespace Master40.MachineLearning.DataStuctures
         public float CreationTime { get; set; }
         [Ignore]
         public float FinishingTime { get; set; }
-        [Ignore]
         public float PredCycleTime { get; set; }
         public float CycleTime { get; set; }
     }

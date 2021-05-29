@@ -26,9 +26,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.PiWebApi", "Master40.PiWebApi\Master40.PiWebApi.csproj", "{AA59C7C1-9CA6-45D9-AFC6-D7D3E61B78AB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.MachineLearning", "Master40.MachineLearning\Master40.MachineLearning.csproj", "{9172E889-4F86-490B-875F-80F87A4B3E2C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4AE71AC2-7C23-4D63-B6D7-E796A4D0E764} = {4AE71AC2-7C23-4D63-B6D7-E796A4D0E764}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

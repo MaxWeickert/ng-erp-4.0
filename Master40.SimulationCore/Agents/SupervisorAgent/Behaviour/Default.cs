@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-using AiProvider.DataStuctures;
+using Master40.MachineLearning.DataStuctures;
 using Akka.Actor;
 using Akka.Util.Internal;
 using AkkaSim.Definitions;
@@ -23,7 +23,6 @@ using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
-using Master40.SimulationCore.Helper.AiProvider;
 using Master40.SimulationCore.Types;
 using Master40.Tools.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -34,6 +33,7 @@ using System.IO;
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Master40.MachineLearning;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
@@ -58,10 +58,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         private int _numberOfValuesForPrediction { get; set; }
+        private int _throughputPredictionAlgorithm { get; set; }
         private bool _trainMLModel { get; set; }
         private int _timeConstraintQueueLength { get; set; }
         private int _settlingStart { get; set; }
-        private ThroughputPredictor _throughputPredictor { get; set; } = new ThroughputPredictor();
+        private CycleTimePredictor _cycleTimePredictor { get; set; } = new CycleTimePredictor();
         private List<SimulationKpis> Kpis { get; set; } = new List<SimulationKpis>();
         private List<ProductProperties> ProductProperties { get; set; } = new List<ProductProperties>();
         private List<ResourceCapabilityKpis> ResourceCapabilityKpis { get; set; } = new List<ResourceCapabilityKpis>();
@@ -84,6 +85,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
             _numberOfValuesForPrediction = configuration.GetOption<UsePredictedThroughput>().Value;
+            _throughputPredictionAlgorithm = configuration.GetOption<ThroughputPredictionAlgorithm>().Value;
             _trainMLModel = configuration.GetOption<TrainMLModel>().Value;
             _timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
             _settlingStart = configuration.GetOption<SettlingStart>().Value;
@@ -117,9 +119,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             ProductProperties = ArticleStatistics.GetProductPropperties(dbProduction.DbContext);
-
-            //ThroughputPredictor.LoadModel();
-
             return true;
         }
 
@@ -196,7 +195,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             CreateCsvOfKpiList();
             if (_trainMLModel)
             {
-                ThroughputPredictor.TrainNeuralNetwork(Kpis);
+                //ThroughputPredictor.TrainNeuralNetwork(Kpis);
             }
 
             Agent.DebugMessage(msg: "End Sim");
@@ -214,9 +213,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             //Fill Kpi List with Kpis and ProductProperties
             FillKpiList(order);
 
-            if(_numberOfValuesForPrediction > 0 && Kpis.Count() > 10)
+            if(_numberOfValuesForPrediction > 0 && Agent.CurrentTime > _settlingStart)
             {
-                //KickoffThroughputPrediction(order.Name, Agent);
+                KickoffThroughputPrediction(order.Name, Agent);
             }
 
             var eta = _estimatedThroughPuts.Get(name: order.Name);
@@ -254,9 +253,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void KickoffThroughputPrediction(string articleName, Agent agent)
         {
-            //TODO: Change data type of input list item
-            //var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction, agent);
-
             // Return ALL filled list items
             var completeKpis = Kpis.FindAll(k => k.Assembly != 0 &&
                                                  k.Material != 0 &&
@@ -267,8 +263,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             if (completeKpis.Any())
             {
-                var predictedThroughput = _throughputPredictor.PredictThroughput(completeKpis.Last(), agent);
-                Kpis.First(k => k.OrderId == _throughputPredictor.predictedActualThroughputList.Last()[0]).PredCycleTime = _throughputPredictor.predictedActualThroughputList.Last()[1];
+                var predictedThroughput = _cycleTimePredictor.PredictCycleTime(completeKpis.Last(), _throughputPredictionAlgorithm);
+                //Write the predicted value into Kpis list
+                Kpis.First(k => k.OrderId == _cycleTimePredictor.predictedActualThroughputList.Last()[0]).PredCycleTime = _cycleTimePredictor.predictedActualThroughputList.Last()[1];
                 _estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
             }
         }
@@ -305,6 +302,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             var csvWriter = new CsvWriter(streamWriter, config);
             csvWriter.WriteRecords(Kpis);
             streamWriter.Flush();
+
+
+
         }
 
         private void FillKpiList(T_CustomerOrder order)
