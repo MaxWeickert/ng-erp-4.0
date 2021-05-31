@@ -261,9 +261,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                                                  k.TotalWork != 0 &&
                                                  k.TotalSetup != 0);
 
+            var kpisForTraining = Kpis.FindAll(k => k.CreationTime != 0 && k.FinishingTime != 0);
+
             if (completeKpis.Any())
             {
-                var predictedThroughput = _cycleTimePredictor.PredictCycleTime(completeKpis.Last(), _throughputPredictionAlgorithm);
+                var predictedThroughput = _cycleTimePredictor.PredictCycleTime(completeKpis.Last(), _throughputPredictionAlgorithm, kpisForTraining.Last(), _trainMLModel);
                 //Write the predicted value into Kpis list
                 Kpis.First(k => k.OrderId == _cycleTimePredictor.predictedActualThroughputList.Last()[0]).PredCycleTime = _cycleTimePredictor.predictedActualThroughputList.Last()[1];
                 _estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);

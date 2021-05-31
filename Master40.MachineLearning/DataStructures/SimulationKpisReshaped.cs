@@ -32,6 +32,9 @@ namespace Master40.MachineLearning.DataStuctures
         public float ProductionOrders { get; set; }
 
         [LoadColumn(9)]
+        public SimulationKpis TrainKpis { get; set; }
+
+        [LoadColumn(10)]
         public float CycleTime { get; set; }
     }
 }

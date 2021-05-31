@@ -33,6 +33,7 @@ namespace Master40.MachineLearning
                     kpi_object.SumDuration = kpis.SumDuration;
                     kpi_object.SumOperations = kpis.SumOperations;
                     kpi_object.ProductionOrders = kpis.ProductionOrders;
+                    kpi_object.CycleTime = kpis.CycleTime;
                     streamWriter.Write(kpi_object.ToString());
                 }
                 HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();

@@ -18,9 +18,11 @@ namespace Master40.MachineLearning
         public List<float[]> predictedActualThroughputList = new List<float[]>();
         long predictedCycleTime = 1920;
 
-        public long PredictCycleTime(SimulationKpis valuesForPrediction, int throughputPredictionAlgorithm)
+        public long PredictCycleTime(SimulationKpis valuesForPrediction, int throughputPredictionAlgorithm, SimulationKpis valuesForTraining, bool trainModel)
         {
-            var kpisForPredict = getReshapedKpisForPrediction(valuesForPrediction);
+            var kpisForPredict = getReshapedKpisForPrediction(valuesForPrediction, false);
+
+            var kpisForTraining = getReshapedKpisForPrediction(valuesForTraining, true);
 
             if (throughputPredictionAlgorithm == 0)
             {
@@ -29,11 +31,18 @@ namespace Master40.MachineLearning
                 string exceptionMessage;
                 string webResponse;
 
+                string trainResponse;
+                string uriTrainApi;
+                string trainExceptionMessage;
+
                 var cSharpPythonRESTfulAPI = new CSharpPythonRESTfulAPI();
 
                 // Set the UIR endpoint link. It should go to the application config file 
                 uirWebAPI = "http://localhost:5000/predict/cycletime.json";
                 exceptionMessage = string.Empty;
+
+                uriTrainApi = "http://localhost:5000/train/cycletime.json";
+                trainExceptionMessage = string.Empty;
 
                 // Get web response by calling the CSharpPythonRestfulApiPredictCycleTime() method
                 webResponse = cSharpPythonRESTfulAPI.CSharpPythonRestfulApiPredictCycleTime(uirWebAPI, kpisForPredict, out exceptionMessage);
@@ -45,6 +54,21 @@ namespace Master40.MachineLearning
                     string cycleTime = JObject.Parse(webResponse)["CycleTime"].ToString();
                     double double_predictedCycleTime = double.Parse(cycleTime, System.Globalization.CultureInfo.InvariantCulture);
                     predictedCycleTime = Convert.ToInt64(double_predictedCycleTime);
+
+                    if (trainModel)
+                    {
+                        trainResponse = cSharpPythonRESTfulAPI.CSharpPythonRestfulApiPredictCycleTime(uriTrainApi,
+                            kpisForTraining, out trainExceptionMessage);
+
+                        if (string.IsNullOrEmpty(trainExceptionMessage))
+                        {
+                            Console.WriteLine(trainResponse);
+                        }
+                        else
+                        {
+                            Console.WriteLine(trainExceptionMessage);
+                        }
+                    }
                 }
                 else
                 {
@@ -70,8 +94,17 @@ namespace Master40.MachineLearning
             return predictedCycleTime;
         }
 
-        private SimulationKpisReshaped getReshapedKpisForPrediction(SimulationKpis kpiList)
+        private SimulationKpisReshaped getReshapedKpisForPrediction(SimulationKpis kpiList, bool train)
         {
+            float cycleTime;
+            if (train)
+            {
+                cycleTime = kpiList.FinishingTime - kpiList.CreationTime;
+            }
+            else
+            {
+                cycleTime = 0;
+            }
             var newKpi = new SimulationKpisReshaped
             {
                 Assembly = kpiList.Assembly,
@@ -83,7 +116,7 @@ namespace Master40.MachineLearning
                 SumDuration = kpiList.SumDuration,
                 SumOperations = kpiList.SumOperations,
                 ProductionOrders = kpiList.ProductionOrders,
-                CycleTime = 0
+                CycleTime = cycleTime
             };
             return newKpi;
         }

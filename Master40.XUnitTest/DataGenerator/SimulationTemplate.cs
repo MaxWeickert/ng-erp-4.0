@@ -156,8 +156,8 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
             simConfig.ReplaceOption(new UsePredictedThroughput(value: 1));
-            simConfig.ReplaceOption(new ThroughputPredictionAlgorithm(value: 1)); // 0 for Python Rest API // 1 for AutoML Model
-            simConfig.ReplaceOption(new TrainMLModel(value: false));
+            simConfig.ReplaceOption(new ThroughputPredictionAlgorithm(value: 0)); // 0 for Python Rest API // 1 for AutoML Model
+            simConfig.ReplaceOption(new TrainMLModel(value: true));
             simConfig.ReplaceOption(new TestArrivalRate(value: false));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
