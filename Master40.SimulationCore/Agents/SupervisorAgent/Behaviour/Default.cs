@@ -284,8 +284,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Kpis.RemoveAll(k => k.CreationTime < _settlingStart);
 
             //Create a csv file for training
-            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/train.csv"));
+            //var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/train.csv"));
             //var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/" + _simulationNumber + "_training_" + _arrivalRate + ".csv"));
+            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/Algo_" + _throughputPredictionAlgorithm + "_simKpis.csv"));
 
             var appendCsv = false;
             var config = new CsvConfiguration(CultureInfo.InvariantCulture);
