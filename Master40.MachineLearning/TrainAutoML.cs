@@ -32,7 +32,7 @@ namespace Master40.MachineLearning
         private static string targetColumnName = "CycleTime"; // Target Column; Variable which should be forecasted
 
         // Experiment Time for AutoMLExperiment
-        private static uint experimentTime = 300; // If > 300 RunAutoMLExperiment will sometimes not finish
+        private static uint experimentTime = 900;
 
         static void Main(string[] args)
         {

@@ -11,7 +11,7 @@ namespace Master40.MachineLearning
     public class CycleTimePredictor
     {
         private static string ModelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("Master40.XUnitTest\\bin\\Debug\\net5.0",
-            "Master40.MachineLearning\\MLModels\\ML_FastTreeTweedieRegression_09625.zip");
+            "Master40.MachineLearning\\MLModels\\ML_FastTreeTweedieRegression_0973.zip");
         private static MLContext mlContext = new MLContext();
 
         // List to compare with the real value
