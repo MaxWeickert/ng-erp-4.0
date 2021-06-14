@@ -37,11 +37,11 @@ namespace Master40.XUnitTest.DataGenerator
                         , 10160    // throughput time
                         , 348345 + i// Random seed
                         , 0.004 //- (i*0.0005)  // arrival rate
-                        , 10080*2 // simulation end //10080 = 3 weeks
+                        , 10080*8 // simulation end //10080 = 3 weeks
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
-                        , 50009 + i
+                        , 1005 + i
                         //int.Parse(1.ToString() + approach.ToString().PadLeft(3, '0') + i.ToString().PadLeft(2, '0'))  //SimulationNumber
                     };
                 }
@@ -156,8 +156,8 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
             simConfig.ReplaceOption(new UsePredictedThroughput(value: 1));
-            simConfig.ReplaceOption(new ThroughputPredictionAlgorithm(value: 0)); // 0 for Python Rest API // 1 for AutoML Model
-            simConfig.ReplaceOption(new TrainMLModel(value: true));
+            simConfig.ReplaceOption(new ThroughputPredictionAlgorithm(value: 1)); // 0 for Python Rest API // 1 for AutoML Model
+            simConfig.ReplaceOption(new TrainMLModel(value: false));
             simConfig.ReplaceOption(new TestArrivalRate(value: false));
 
             ArgumentConverter.ConvertBackAndSave(DbResult.DbContext, simConfig, dataGenSim.Id);
