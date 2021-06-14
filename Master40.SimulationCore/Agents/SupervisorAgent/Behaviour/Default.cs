@@ -211,7 +211,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
 
             //Fill Kpi List with Kpis and ProductProperties
-            FillKpiList(order);
+            if (_numberOfValuesForPrediction > 0)
+            {
+                FillKpiList(order);
+            }
 
             if(_numberOfValuesForPrediction > 0 && Agent.CurrentTime > _settlingStart)
             {
