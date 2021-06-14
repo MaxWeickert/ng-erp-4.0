@@ -284,9 +284,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Kpis.RemoveAll(k => k.CreationTime < _settlingStart);
 
             //Create a csv file for training
-            //var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/train.csv"));
+            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/train.csv"));
             //var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/" + _simulationNumber + "_training_" + _arrivalRate + ".csv"));
-            var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/Algo_" + _throughputPredictionAlgorithm + "_simKpis.csv"));
+            //var filestring = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../GeneratedData/Algorithm_" + _throughputPredictionAlgorithm + "_simKpis.csv"));
 
             var appendCsv = false;
             var config = new CsvConfiguration(CultureInfo.InvariantCulture);
@@ -305,9 +305,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             var csvWriter = new CsvWriter(streamWriter, config);
             csvWriter.WriteRecords(Kpis);
             streamWriter.Flush();
-
-
-
         }
 
         private void FillKpiList(T_CustomerOrder order)
@@ -320,12 +317,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 Kpis.First(k => k.OrderId == order.Id).SumOperations = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).OperationCount;
                 Kpis.First(k => k.OrderId == order.Id).ProductionOrders = ProductProperties.Find(pP => pP.ArticleId == order.CustomerOrderParts.ElementAt(0).ArticleId).ProductionOrderCount;
 
-                if (Kpis.First(k => k.OrderId == order.Id).Assembly == 0
-                    && Kpis.First(k => k.OrderId == order.Id).Material == 0
-                    && Kpis.First(k => k.OrderId == order.Id).OpenOrders == -1
-                    && Kpis.First(k => k.OrderId == order.Id).NewOrders == -1
-                    && Kpis.First(k => k.OrderId == order.Id).TotalWork == 0
-                    && Kpis.First(k => k.OrderId == order.Id).TotalSetup == 0
+                if (Kpis.First(k => k.OrderId == order.Id).Assembly != 0
+                    && Kpis.First(k => k.OrderId == order.Id).Material != 0
+                    && Kpis.First(k => k.OrderId == order.Id).OpenOrders != -1
+                    && Kpis.First(k => k.OrderId == order.Id).NewOrders != -1
+                    && Kpis.First(k => k.OrderId == order.Id).TotalWork != 0
+                    && Kpis.First(k => k.OrderId == order.Id).TotalSetup != 0
                     && Agent.CurrentTime >= _timeConstraintQueueLength
                     && Kpis.Count > 0)
                 {
@@ -333,7 +330,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                     Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly != 0).Assembly;
                     Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material != 0).Material;
                     Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.OpenOrders != -1).OpenOrders;
-                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders != -1).NewOrders; //search for assembly != bc NewOrders can sometimes be 0
+                    Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders != -1).NewOrders;
                     Kpis.First(k => k.OrderId == order.Id).TotalWork = Kpis.Last(k => k.TotalWork != 0).TotalWork;
                     Kpis.First(k => k.OrderId == order.Id).TotalSetup = Kpis.Last(k => k.TotalSetup != 0).TotalSetup;
                 }
