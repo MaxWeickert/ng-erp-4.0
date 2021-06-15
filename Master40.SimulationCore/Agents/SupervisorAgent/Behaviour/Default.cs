@@ -218,7 +218,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             if(_numberOfValuesForPrediction > 0 && Agent.CurrentTime > _settlingStart)
             {
-                KickoffThroughputPrediction(order.Name, Agent);
+                //KickoffThroughputPrediction(order.Name, Agent);
             }
 
             var eta = _estimatedThroughPuts.Get(name: order.Name);
@@ -322,6 +322,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
                 if (Kpis.First(k => k.OrderId == order.Id).Assembly != 0
                     && Kpis.First(k => k.OrderId == order.Id).Material != 0
+                    && Kpis.First(k => k.OrderId == order.Id).Lateness != 0
                     && Kpis.First(k => k.OrderId == order.Id).OpenOrders != -1
                     && Kpis.First(k => k.OrderId == order.Id).NewOrders != -1
                     && Kpis.First(k => k.OrderId == order.Id).TotalWork != 0
@@ -331,6 +332,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 {
                     //TODO: Checkout if list already contains elements
                     Kpis.First(k => k.OrderId == order.Id).Assembly = Kpis.Last(k => k.Assembly == 0).Assembly;
+                    Kpis.First(k => k.OrderId == order.Id).Lateness = Kpis.Last(k => k.Assembly == 0).Lateness;
                     Kpis.First(k => k.OrderId == order.Id).Material = Kpis.Last(k => k.Material == 0).Material;
                     Kpis.First(k => k.OrderId == order.Id).OpenOrders = Kpis.Last(k => k.OpenOrders == -1).OpenOrders;
                     Kpis.First(k => k.OrderId == order.Id).NewOrders = Kpis.Last(k => k.NewOrders == -1).NewOrders;
@@ -362,6 +364,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 {
                     case "Assembly":
                         Kpis.First(k => k.CreationTime >= kpi.Time).Assembly = (float)kpi.Value;
+                        break;
+                    case "Lateness":
+                        Kpis.First(k => k.CreationTime >= kpi.Time).Lateness = (float)kpi.Value;
                         break;
                     case "Material":
                         Kpis.First(k => k.CreationTime >= kpi.Time).Material = (float)kpi.Value;

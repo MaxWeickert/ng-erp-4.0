@@ -5,7 +5,7 @@ namespace Master40.MachineLearning.DataStuctures
     public class SimulationKpis
     {
         public SimulationKpis(
-            float time, float assembly = 0, float material = 0, 
+            float time, float assembly = 0, float material = 0, float lateness = 0,
             float openOrders = -1, float newOrders = -1, 
             float totalWork = 0, float totalSetup = 0,
             float sumDuration = 0, float sumOperations = 0, float productionOrders = 0,
@@ -14,6 +14,7 @@ namespace Master40.MachineLearning.DataStuctures
         {
             Time = time;
             Assembly = assembly;
+            Lateness = lateness;
             Material = material;
             OpenOrders = openOrders;
             NewOrders = newOrders;
@@ -30,6 +31,7 @@ namespace Master40.MachineLearning.DataStuctures
         }
         [Ignore]
         public float Time { get; set; }
+        public float Lateness { get; set; }
         public float Assembly { get; set; }
         public float Material { get; set; }
         public float OpenOrders { get; set; }
@@ -45,6 +47,7 @@ namespace Master40.MachineLearning.DataStuctures
         public float CreationTime { get; set; }
         [Ignore]
         public float FinishingTime { get; set; }
+        [Ignore]
         public float PredCycleTime { get; set; }
         public float CycleTime { get; set; }
     }
