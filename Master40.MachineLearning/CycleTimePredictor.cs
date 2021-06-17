@@ -11,7 +11,7 @@ namespace Master40.MachineLearning
     public class CycleTimePredictor
     {
         private static string ModelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("Master40.XUnitTest\\bin\\Debug\\net5.0",
-            "Master40.MachineLearning\\MLModels\\ML_FastTreeTweedieRegression_0973.zip");
+            "Master40.MachineLearning\\MLModels\\ML_SdcaRegression_08916.zip"); //ML_SdcaRegression_08916.zip //ML_FastTreeTweedieRegression_08938.zip
         private static MLContext mlContext = new MLContext();
 
         // List to compare with the real value
@@ -74,7 +74,7 @@ namespace Master40.MachineLearning
                 {
                     // An error occurred. Write the exception message
                     Console.WriteLine(exceptionMessage);
-                }                     
+                }
             }
             else if (throughputPredictionAlgorithm == 1)
             {
@@ -85,7 +85,7 @@ namespace Master40.MachineLearning
 
                 var resultPrediction = predEngine.Predict(kpisForPredict);
 
-                predictedCycleTime = (long)Math.Round(resultPrediction.CycleTime, 0);
+                predictedCycleTime = (long)Math.Round(resultPrediction.CycleTime * 1.2, 0);
             }
 
             // Create List with predicted cycletimes for specific orders to compare later 
